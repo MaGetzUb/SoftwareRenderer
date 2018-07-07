@@ -1,0 +1,8 @@
+.vs/
+
+SoftwareRenderer/
+premake/premake5.exe
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.user 
