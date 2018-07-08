@@ -63,11 +63,11 @@ struct tvec4 {
 		w((T)0)
 	{}
 
-	tvec4(T a, T b, T c, T d):
-		x(a),
-		y(b),
-		z(c),
-		w(d)
+	tvec4(T av, T bv, T cv, T dv):
+		x(av),
+		y(bv),
+		z(cv),
+		w(dv)
 	{}
 
 	tvec4(T v):
@@ -84,19 +84,19 @@ struct tvec4 {
 		w(xyz_w)
 	{}
 
-	tvec4(const tvec4<T>& b):
-		x(b.x),
-		y(b.y),
-		z(b.z),
-		w(b.w)
+	tvec4(const tvec4<T>& r):
+		x(r.x),
+		y(r.y),
+		z(r.z),
+		w(r.w)
 	{}
 
 	template<class B>
-	explicit tvec4(const tvec4<B>& b):
-		x((B)b.x),
-		y((B)b.y),
-		z((B)b.z),
-		w((B)b.w)
+	explicit tvec4(const tvec4<B>& r):
+		x((B)r.x),
+		y((B)r.y),
+		z((B)r.z),
+		w((B)r.w)
 	{}
 
 	~tvec4() {}
@@ -109,40 +109,40 @@ struct tvec4 {
 		return *(((T*)&x)+i);
 	}
 
-	inline tvec4& operator=(const tvec4<T>& b) {
-		x = b.x;
-		y = b.y;
-		z = b.z;
-		w = b.w;
+	inline tvec4& operator=(const tvec4<T>& r) {
+		x = r.x;
+		y = r.y;
+		z = r.z;
+		w = r.w;
 		return *this;
 	}
 
-	inline tvec4& operator+=(const tvec4<T>& b) {
-		*this = *this + b;
+	inline tvec4& operator+=(const tvec4<T>& r) {
+		*this = *this + r;
 		return *this;
 	}
 
-	inline tvec4& operator-=(const tvec4<T>& b) {
-		*this = *this - b;
+	inline tvec4& operator-=(const tvec4<T>& r) {
+		*this = *this - r;
 		return *this;
 	}
 
-	inline tvec4& operator*=(T b) {
-		*this = *this * b;
+	inline tvec4& operator*=(T r) {
+		*this = *this * r;
 		return *this;
 	}
 
-	inline tvec4& operator/=(T b) {
+	inline tvec4& operator/=(T r) {
 		*this = *this / b;
 		return *this;
 	}
 
-	inline T dot(const tvec4& b) const {
-		return x*b.x + y*b.y + z*b.z + w*b.w;
+	inline T dot(const tvec4& r) const {
+		return x*r.x + y*r.y + z*r.z + w*r.w;
 	}
 
-	tvec4 mix(const tvec4& b, T amt) const {
-		return ((*this)*((T)1 - amt)) + (b * amt);
+	tvec4 mix(const tvec4& r, T amt) const {
+		return ((*this)*((T)1 - amt)) + (r * amt);
 	}
 
 	tvec3<T> xyz() const { return tvec3<T>(x, y, z);  }

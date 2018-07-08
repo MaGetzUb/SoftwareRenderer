@@ -70,32 +70,32 @@ struct tvec2 {
 		y(v)
 	{}
 
-	tvec2(const tvec2<T>& b):
-		x(b.x),
-		y(b.y)
+	tvec2(const tvec2<T>& r):
+		x(r.x),
+		y(r.y)
 	{}
 
-	tvec2(tvec2<T>&& b): tvec2() {
-		std::swap(x, b.x);
-		std::swap(y, b.y);
+	tvec2(tvec2<T>&& r): tvec2() {
+		std::swap(x, r.x);
+		std::swap(y, r.y);
 	}
 
 	template<class B>
-	explicit tvec2(const tvec2<B>& b):
-		x((T)b.x),
-		y((T)b.y)
+	explicit tvec2(const tvec2<B>& r):
+		x((T)r.x),
+		y((T)r.y)
 	{}
 
 	template<class B>
-	tvec2(B a, B b):
-		x((T)a),
-		y((T)b)
+	tvec2(B av, B bv):
+		x((T)av),
+		y((T)bv)
 	{}
 
 	template<class B, class D>
-	tvec2(B a, D b):
-		x((T)a),
-		y((T)b)
+	tvec2(B av, D bv):
+		x((T)av),
+		y((T)bv)
 	{}
 
 	~tvec2() {}
@@ -113,42 +113,42 @@ struct tvec2 {
 		return tvec2<B>((B)x, (B)y);
 	}
 
-	inline tvec2& operator=(const tvec2<T>& b) {
-		x = b.x;
-		y = b.y;
+	inline tvec2& operator=(const tvec2<T>& r) {
+		x = r.x;
+		y = r.y;
 		return *this;
 	}
 
-	inline tvec2& operator+=(const tvec2<T>& b) {
-		x += b.x;
-		y += b.y;
+	inline tvec2& operator+=(const tvec2<T>& r) {
+		x += r.x;
+		y += r.y;
 		return *this;
 	}
 
-	inline tvec2& operator-=(const tvec2<T>& b) {
-		x -= b.x;
-		y -= b.y;
+	inline tvec2& operator-=(const tvec2<T>& r) {
+		x -= r.x;
+		y -= r.y;
 		return *this;
 	}
 
-	inline tvec2& operator*=(T b) {
-		x *= b;
-		y *= b;
+	inline tvec2& operator*=(T r) {
+		x *= r;
+		y *= r;
 		return *this;
 	}
 
-	inline tvec2& operator/=(T b) {
-		x /= b;
-		y /= b;
+	inline tvec2& operator/=(T r) {
+		x /= r;
+		y /= r;
 		return *this;
 	}
 
-	bool operator==(const tvec2<T>& b) {
-		return (x == b.x && y == b.y);
+	bool operator==(const tvec2<T>& r) {
+		return (x == r.x && y == r.y);
 	}
 
-	bool operator!=(const tvec2<T>& b) {
-		return !(*this == b);
+	bool operator!=(const tvec2<T>& r) {
+		return !(*this == r);
 	}
 
 	inline tvec2 left() {
@@ -163,8 +163,8 @@ struct tvec2 {
 		return tvec2<T>(y, x);
 	}
 
-	T dot(const tvec2& b) const {
-		return x*b.x + y*b.y;
+	T dot(const tvec2& r) const {
+		return x*r.x + y*r.y;
 	}
 
 	inline T magnitude() const {
@@ -184,9 +184,9 @@ struct tvec2 {
 		return tvec2(*this).normalize();
 	}
 
-	inline tvec2& reflect(const tvec2& b) {
+	inline tvec2& reflect(const tvec2& r) {
 		tvec2& self = *this;
-		self -= 2*dot(self, b)*b;
+		self -= 2*dot(self, r)*r;
 		return self;
 	}
 

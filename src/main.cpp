@@ -42,10 +42,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef NDEBUG 
 int CALLBACK WinMain(
-	HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR     lpCmdLine,
-	int       nCmdShow
+	HINSTANCE /*hInstance*/,
+	HINSTANCE /*hPrevInstance*/,
+	LPSTR     /*lpCmdLine*/,
+	int       /*nCmdShow*/
 )
 #else
 int main() 
@@ -73,8 +73,11 @@ int main()
 	double deltaTime = 0.0f; 
 
 	float ang = 0.0f;
+
+	#ifdef TEXT_INPUT_TEST
 	std::string input;
 	auto eraseTime = Timer();
+	#endif 
 
 	Vertex vertices[3] = { {-1.0f, -1.0f}, {0.0f, 1.0f}, {1.0f, -1.0f} };
 	vertices[0].setColor({ 1.0f, 0.0f, 0.0f, 1.0 });
@@ -112,7 +115,7 @@ int main()
 		RECT rct = { 0, 0, 800, 300 };
 
 
-		#if 0
+		#ifdef TEXT_INPUT_TEST
 		unsigned int ch;
 		if(inputs.isTextInput(ch)) {
 			if(isprint(ch)) {

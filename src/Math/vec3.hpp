@@ -70,22 +70,24 @@ struct tvec3 {
 		z(v)
 	{}
 
-	tvec3(T a, T b, T c):
-		x(a),
-		y(b),
-		z(c)
+	tvec3(T av, T bv, T cv):
+		x(av),
+		y(bv),
+		z(cv)
 	{}
 
-	tvec3(const tvec3<T>& b):
-		x(b.x),
-		y(b.y),
-		z(b.z)
+	tvec3(const tvec3<T>& r):
+		x(r.x),
+		y(r.y),
+		z(r.z)
 	{}
 
-	tvec3(tvec3<T>&& b): tvec3() {
-		std::swap(x, b.x);
-		std::swap(y, b.y);
-		std::swap(z, b.z);
+	tvec3(tvec3<T>&& r): 
+		tvec3() 
+	{
+		std::swap(x, r.x);
+		std::swap(y, r.y);
+		std::swap(z, r.z);
 	}
 
 	template<class B>
@@ -105,55 +107,55 @@ struct tvec3 {
 		return  *((T*)&x+i);
 	}
 
-	inline tvec3& operator=(const tvec3<T>& b) {
-		x = b.x;
-		y = b.y;
-		z = b.z;
+	inline tvec3& operator=(const tvec3<T>& r) {
+		x = r.x;
+		y = r.y;
+		z = r.z;
 		return *this;
 	}
 
-	inline tvec3& operator+=(const tvec3<T>& b) {
-		x += b.x;
-		y += b.y;
-		z += b.z;
+	inline tvec3& operator+=(const tvec3<T>& r) {
+		x += r.x;
+		y += r.y;
+		z += r.z;
 		return *this;
 	}
 
-	inline tvec3& operator-=(const tvec3<T>& b) {
-		x -= b.x;
-		y -= b.y;
-		z -= b.z;
+	inline tvec3& operator-=(const tvec3<T>& r) {
+		x -= r.x;
+		y -= r.y;
+		z -= r.z;
 		return *this;
 	}
 
-	inline tvec3& operator*=(T b) {
-		x *= b;
-		y *= b;
-		z *= b;
+	inline tvec3& operator*=(T r) {
+		x *= r;
+		y *= r;
+		z *= r;
 		return *this;
 	}
 
-	inline tvec3& operator/=(T b) {
-		x /= b;
-		y /= b;
-		z /= b;
+	inline tvec3& operator/=(T r) {
+		x /= r;
+		y /= r;
+		z /= r;
 		return *this;
 	}
 
-	bool operator==(const tvec3& b) {
-		return ((x == b.x) && (y == b.y) && (z == b.z));
+	bool operator==(const tvec3& r) {
+		return ((x == r.x) && (y == r.y) && (z == r.z));
 	}
 
 	tvec3 operator-() {
 		return tvec3<T>(-x, -y, -z);
 	}
 
-	inline T dot(const tvec3& b) const {
-		return x*b.x + y*b.y + z*b.z;
+	inline T dot(const tvec3& r) const {
+		return x*r.x + y*r.y + z*r.z;
 	}
 
-	inline tvec3 cross(const tvec3& b) const {
-		return tvec3<T>{y*b.z - z*b.y, z*b.x - x*b.z, x*b.y - y*b.x};
+	inline tvec3 cross(const tvec3& r) const {
+		return tvec3<T>{y*r.z - z*r.y, z*r.x - x*r.z, x*r.y - y*r.x};
 	}
 
 	/*inline tmat3<T> outer(const tvec3& b) const {
@@ -162,8 +164,8 @@ struct tvec3 {
 				{z*b.x, z*b.y, z*b.z});
 	}*/
 
-	inline tvec3 mix(const tvec3& b, T amt) const {
-		return (*this)*((T)1 - amt) + b*amt;
+	inline tvec3 mix(const tvec3& r, T amt) const {
+		return (*this)*((T)1 - amt) + r*amt;
 	}
 
 	inline T magnitude() const {
