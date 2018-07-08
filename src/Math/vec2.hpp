@@ -97,11 +97,11 @@ struct tvec2 {
 
 	~tvec2() {}
 
-	T& operator[](u32 i) {
+	T& operator[](int i) {
 		return  *((T*)&x+i);
 	}
 
-	const T& operator[](u32 i) const {
+	const T& operator[](int i) const {
 		return  *((T*)&x+i);
 	}
 
@@ -110,31 +110,31 @@ struct tvec2 {
 		return tvec2<B>((B)x, (B)y);
 	}
 
-	optimized tvec2& operator=(const tvec2<T>& b) {
+	inline tvec2& operator=(const tvec2<T>& b) {
 		x = b.x;
 		y = b.y;
 		return *this;
 	}
 
-	optimized tvec2& operator+=(const tvec2<T>& b) {
+	inline tvec2& operator+=(const tvec2<T>& b) {
 		x += b.x;
 		y += b.y;
 		return *this;
 	}
 
-	optimized tvec2& operator-=(const tvec2<T>& b) {
+	inline tvec2& operator-=(const tvec2<T>& b) {
 		x -= b.x;
 		y -= b.y;
 		return *this;
 	}
 
-	optimized tvec2& operator*=(T b) {
+	inline tvec2& operator*=(T b) {
 		x *= b;
 		y *= b;
 		return *this;
 	}
 
-	optimized tvec2& operator/=(T b) {
+	inline tvec2& operator/=(T b) {
 		x /= b;
 		y /= b;
 		return *this;
@@ -148,15 +148,15 @@ struct tvec2 {
 		return !(*this == b);
 	}
 
-	optimized tvec2 left() {
+	inline tvec2 left() {
 		return tvec2<T>(-y, x);
 	}
 
-	optimized tvec2 right() {
+	inline tvec2 right() {
 		return tvec2<T>(y, -x);
 	}
 
-	optimized tvec2 yx() {
+	inline tvec2 yx() {
 		return tvec2<T>(y, x);
 	}
 
@@ -164,24 +164,24 @@ struct tvec2 {
 		return x*b.x + y*b.y;
 	}
 
-	optimized T magnitude() const {
+	inline T magnitude() const {
 		return dot(*this);
 	}
 
-	optimized T length() const {
+	inline T length() const {
 		return sqrt(magnitude());
 	}
 
-	optimized tvec2& normalize() {
+	inline tvec2& normalize() {
 		*this /= length();
 		return *this;
 	}
 
-	optimized tvec2 normalized() const {
+	inline tvec2 normalized() const {
 		return tvec2(*this).normalize();
 	}
 
-	optimized tvec2& reflect(const tvec2& b) {
+	inline tvec2& reflect(const tvec2& b) {
 		tvec2& self = *this;
 		self -= 2*dot(self, b)*b;
 		return self;
@@ -195,91 +195,91 @@ void tmat4<T>::transform(const tvec2<T>& vec) {
 }
 
 template <class T>
-optimized static tvec2<T> normalize(const tvec2<T>& v) {
+inline static tvec2<T> normalize(const tvec2<T>& v) {
 	return v.normalized();
 }
 
 template <class T>
-optimized static tvec2<T> reorthogonalize(const tvec2<T>& a, const tvec2<T>& b) {
+inline static tvec2<T> reorthogonalize(const tvec2<T>& a, const tvec2<T>& b) {
 	return normalize(a - dot(a, b) * b);
 }
 
 
 template <class T>
-optimized static T length(const tvec2<T>& v) {
+inline static T length(const tvec2<T>& v) {
 	return v.length();
 }
 
 template<class T>
-optimized static T operator*(const tvec2<T>& a, const tvec2<T>& b) {
+inline static T operator*(const tvec2<T>& a, const tvec2<T>& b) {
 	return a.x*b.x + a.y*b.y;
 }
 
 template<class T>
-optimized static tvec2<T>& operator-(tvec2<T>& vec) {
+inline static tvec2<T>& operator-(tvec2<T>& vec) {
 	vec.x = -vec.x;
 	vec.y = -vec.y;
 	return vec;
 }
 
 template<class T>
-optimized static bool operator==(const tvec2<T>& a, const tvec2<T>& b) {
+inline static bool operator==(const tvec2<T>& a, const tvec2<T>& b) {
 	return (a.x == b.x && a.y == b.y);
 }
 
 template<class T>
-optimized static bool operator!=(const tvec2<T>& a, const tvec2<T>& b) {
+inline static bool operator!=(const tvec2<T>& a, const tvec2<T>& b) {
 	return !(a == b);
 }
 
 template<class T>
-optimized static tvec2<T> operator+(const tvec2<T>& a, const tvec2<T>& b) {
+inline static tvec2<T> operator+(const tvec2<T>& a, const tvec2<T>& b) {
 	return tvec2<T>(a.x+b.x, a.y+b.y);
 }
 
 template<class T>
-optimized static tvec2<T> operator-(const tvec2<T>& a, const tvec2<T>& b) {
+inline static tvec2<T> operator-(const tvec2<T>& a, const tvec2<T>& b) {
 	return tvec2<T>(a.x-b.x, a.y-b.y);
 }
 
 template<class T>
-optimized static tvec2<T> operator-(const tvec2<T>& v) {
+inline static tvec2<T> operator-(const tvec2<T>& v) {
 	return tvec2<T>(-v.x, -v.y);
 }
 
 template<class T>
-optimized static tvec2<T> operator/(const tvec2<T>& a, T b) {
+inline static tvec2<T> operator/(const tvec2<T>& a, T b) {
 	return tvec2<T>(a.x / b, a.y/b);
 }
 
 template<class T, class B>
-optimized static tvec2<T> operator/(const tvec2<T>& a, B b) {
+inline static tvec2<T> operator/(const tvec2<T>& a, B b) {
 	return tvec2<T>(a.x / (T)b, a.y/ (T)b);
 }
 
 template<class T>
-optimized static tvec2<T> operator*(const tvec2<T>& a, T b) {
+inline static tvec2<T> operator*(const tvec2<T>& a, T b) {
 	return tvec2<T>(a.x * b, a.y * b);
 }
 
 template<class T, class B>
-optimized static tvec2<T> operator*(const tvec2<T>& a, B b) {
+inline static tvec2<T> operator*(const tvec2<T>& a, B b) {
 	return tvec2<T>(a.x * (T)b, a.y * (T)b);
 }
 
 template<class T>
-optimized static tvec2<T> operator*(T a, const tvec2<T>& b) {
+inline static tvec2<T> operator*(T a, const tvec2<T>& b) {
 	return tvec2<T>(a * b.x, a * b.y);
 }
 
 template<class T, class B>
-optimized static tvec2<B> operator*(T a, const tvec2<B>& b) {
+inline static tvec2<B> operator*(T a, const tvec2<B>& b) {
 	return tvec2<B>((B)a * b.x, (B)a * b.y);
 }
 
 
 template<class T>
-optimized static std::ostream& operator<<(std::ostream& o, const tvec2<T>& b) {
+inline static std::ostream& operator<<(std::ostream& o, const tvec2<T>& b) {
 	o << "x: "<<b.x<<" y: "<<b.y ;
 	return o;
 }
@@ -295,19 +295,11 @@ static tvec2<T> mix(const tvec2<T>& a, const tvec2<T>& b, T amt) {
 	return a.mix(b, amt);
 }
 
-template <class T>
-static tvec2<T> operator*(const tmat3<T>& m, const tvec2<T>& v) {
-	tvec2<T> o;
-	o.x = v.x * m[0][0] + v.y * m[1][0] + m[2][0];
-	o.y = v.x * m[0][1] + v.y * m[1][1] + m[2][1];
-	return o;
-}
 
-
-typedef tvec2<f64> dvec2;
-typedef tvec2<f32> vec2;
-typedef tvec2<s32> ivec2;
-typedef tvec2<u32> uvec2;
+typedef tvec2<double> dvec2;
+typedef tvec2<float> vec2;
+typedef tvec2<int> ivec2;
+typedef tvec2<unsigned> uvec2;
 
 
 #endif // VEC2_HPP

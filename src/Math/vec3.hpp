@@ -371,7 +371,7 @@ static tvec3<T> operator*(const tmat3<T>& m, const tvec3<T>& v) {
 typedef tvec3<double> dvec3;
 typedef tvec3<float> vec3;
 typedef tvec3<int> ivec3;
-typedef tvec3<unsigned int> uvec3;
+typedef tvec3<unsigned> uvec3;
 
 
 #ifdef USE_SIMD

@@ -184,7 +184,7 @@ struct tvec4 {
 typedef tvec4<float> vec4;
 typedef tvec4<double> dvec4;
 typedef tvec4<int> ivec4;
-typedef tvec4<unsigned int> uvec4;
+typedef tvec4<unsigned> uvec4;
 
 
 
