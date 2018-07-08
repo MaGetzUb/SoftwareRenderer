@@ -31,6 +31,8 @@ solution("SoftwareRenderer")
 _project("SoftwareRenderer")
 	location("../SoftwareRenderer")
 	
+	debugdir("../")
+	
 	targetname("SoftwareRenderer")
 	
 	characterset("MBCS")	
