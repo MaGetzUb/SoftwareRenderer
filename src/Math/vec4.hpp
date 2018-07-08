@@ -351,6 +351,7 @@ inline static vec4 operator*(const vec4& a, const vec4& b) {
 inline int Vec4ToPixel(const vec4& color) {
 	__m128 x = _mm_loadu_ps(&color[0]);
 	x = _mm_mul_ps(x, _mm_set1_ps(255.f));
+	x = _mm_shuffle_ps(x, x, _MM_SHUFFLE(3, 0, 1, 2));
 	__m128i y = _mm_cvtps_epi32(x);
 	y = _mm_packs_epi32(y, y);
 	y = _mm_packus_epi16(y, y);
@@ -359,9 +360,9 @@ inline int Vec4ToPixel(const vec4& color) {
 
 inline vec4 PixelToVec4(int pixelColor) {
 	vec4 out;
-	__m128i y = _mm_cvtsi32_si128(pixelColor);
-	y = _mm_packus_epi16(y, y);
-	y = _mm_packs_epi32(y, y);
+	__m128i y = _mm_set_epi32(pixelColor >> 24 & 0xff, pixelColor >> 16 & 0xff, pixelColor >> 8 & 0xff, pixelColor & 0xff);
+	//y = _mm_packus_epi16(y, y);
+	//y = _mm_packs_epi32(y, y);
 	__m128 x = _mm_cvtepi32_ps(y);
 	x = _mm_div_ps(x, _mm_set1_ps(255.f));
 	_mm_storeu_ps((float*)&out, x);
