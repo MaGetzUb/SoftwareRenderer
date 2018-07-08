@@ -46,25 +46,10 @@ template<class T>
 inline static tvec4<T> operator*(const tvec4<T>& a, T b);
 
 template <class T>
-static T InitValue();
-
-#define InitVal(T) template<> static T InitValue() {return (T)0;}
-
-InitVal(char)
-InitVal(unsigned char)
-InitVal(short)
-InitVal(unsigned short)
-InitVal(int)
-InitVal(unsigned int)
-InitVal(long long)
-InitVal(unsigned long long)
-InitVal(float)
-InitVal(double)
-
-
-
-template <class T>
 struct tvec4 {
+
+	static_assert(std::is_arithmetic<T>::value, "Only arithmetic types allowed for tvec4!");
+
 	union {
 		struct { T x, y, z, w; };
 		struct { T r, g, b, a; };
@@ -72,10 +57,10 @@ struct tvec4 {
 	};
 
 	tvec4():
-		x(InitValue<T>()),
-		y(InitValue<T>()),
-		z(InitValue<T>()),
-		w(InitValue<T>())
+		x((T)0),
+		y((T)0),
+		z((T)0),
+		w((T)0)
 	{}
 
 	tvec4(T a, T b, T c, T d):
@@ -363,7 +348,7 @@ inline static vec4 operator*(const vec4& a, const vec4& b) {
 }
 
 
-inline int Vec4ToPixel(vec4 color) {
+inline int Vec4ToPixel(const vec4& color) {
 	__m128 x = _mm_loadu_ps(&color[0]);
 	x = _mm_mul_ps(x, _mm_set1_ps(255.f));
 	__m128i y = _mm_cvtps_epi32(x);

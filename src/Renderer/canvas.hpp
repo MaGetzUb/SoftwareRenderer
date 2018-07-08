@@ -76,9 +76,15 @@ class Canvas {
 			set(x, y, 0xff << 24 | r << 16 | g << 8 | b);
 		}
 
-		inline void set(int x, int y, vec4 color) {
-			set(x, y, color.x * 255.f, color.y * 255.f, color.z * 255.f);
+		#ifdef USE_SIMD
+		inline void set(int x, int y, const vec4& color) {
+			set(x, y, Vec4ToPixel(color));
 		}
+		#else
+		inline void set(int x, int y, const vec4& color) {
+			set(x, y, (byte)(color.x * 255.f), (byte)(color.y * 255.f), (byte)(color.z * 255.f));
+		}
+		#endif 
 
 
 		unsigned char* buffer() { return mBufferMemory; }

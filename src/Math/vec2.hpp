@@ -45,6 +45,9 @@ static tvec2<T> operator*(T, const  tvec2<T>&);
 
 template <class T>
 struct tvec2 {
+
+	static_assert(std::is_arithmetic<T>::value, "Only arithmetic types allowed for tvec2!");
+
 	union {
 		struct { T x, y; };
 		struct { T u, v; };

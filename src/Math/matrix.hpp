@@ -99,6 +99,9 @@ static tmat<T, N, M> operator-(const tmat<T, N, M>& a, const tmat<T, N, M>& b);
 //Big thanks to Latexi95 https://github.com/Latexi95
 template <class T, int N, int M>
 class tmat {
+
+	static_assert(std::is_arithmetic<T>::value, "Only arithmetic types allowed for tmat!");
+
 	protected:
 	T mData[N * M];
 	public:

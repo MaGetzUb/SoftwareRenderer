@@ -73,8 +73,8 @@ vec4 Texture::sample(float x, float y, Sampling sampling, Wraping wraping) const
 			float fracY = y - (int)y; 
 
 			if(sampling == Sampling::CubicHermite) {
-				fracX = fracX * fracX * (3.0 - 2.0*fracX);
-				fracY = fracY * fracY * (3.0 - 2.0*fracX);
+				fracX = fracX * fracX * (3.f - 2.f*fracX);
+				fracY = fracY * fracY * (3.f - 2.f*fracX);
 			}
 
 			vec4 a = sample((int)x, (int)y);

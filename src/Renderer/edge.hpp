@@ -41,8 +41,8 @@ class Edge {
 	public: 
 
 		Edge(const Gradients& gradients, const Vertex& a, const Vertex& b, int minYVid) {
-			mYStart = ceilf(a.y());
-			mYEnd = ceilf(b.y());
+			mYStart = (int)ceilf(a.y());
+			mYEnd = (int)ceilf(b.y());
 
 			float yDist = b.y() - a.y();
 			float xDist = b.x() - a.x();
@@ -63,8 +63,8 @@ class Edge {
 		}
 
 		float x() const { return mX; }
-		float yStart() const { return mYStart; }
-		float yEnd() const { return mYEnd; }
+		int yStart() const { return mYStart; }
+		int yEnd() const { return mYEnd; }
 		const vec4& color() const { return mColor; }
 };
 

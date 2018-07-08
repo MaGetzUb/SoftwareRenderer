@@ -37,9 +37,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //Code based on TheBennybox' video tutorial series on software rendering
 class RenderContext {
 	
+	mat4 mScreenSpaceTransform;
 	Canvas* mCanvas = nullptr;
 
-	mat4 mScreenSpaceTransform;
 
 	public: 
 		

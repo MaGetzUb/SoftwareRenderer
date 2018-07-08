@@ -45,6 +45,7 @@ struct tvec4;
 template <class T>
 struct tquat {
 
+	static_assert(std::is_arithmetic<T>::value, "Only arithmetic types allowed for tquat!");
 	T w, x, y, z;
 
 

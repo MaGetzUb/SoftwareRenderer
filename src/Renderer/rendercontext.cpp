@@ -76,8 +76,8 @@ void RenderContext::scanTriangle(const Vertex& a, const Vertex& b, const Vertex&
 }
 
 void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, int y) {
-	int xMin = ceilf(a->x());
-	int xMax = ceilf(b->x());
+	int xMin = (int)ceilf(a->x());
+	int xMax = (int)ceilf(b->x());
 
 	float offset = xMin - a->x();
 	
@@ -95,8 +95,8 @@ void RenderContext::scanEdge(const Gradients& gradients, Edge* a, Edge* b, bool 
 	Edge* right = b;
 	if(handedness) std::swap(left, right);
 
-	int yStart = b->yStart();
-	int yEnd = b->yEnd();
+	int yStart = (int)b->yStart();
+	int yEnd = (int)b->yEnd();
 
 	for(int j = yStart; j < yEnd; j++) {
 		drawScanLine(gradients, left, right, j);

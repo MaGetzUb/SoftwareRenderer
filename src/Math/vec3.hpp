@@ -50,6 +50,8 @@ inline static tvec3<T> operator*(const tvec3<T>& a, T b);
 template <class T>
 struct tvec3 {
 
+	static_assert(std::is_arithmetic<T>::value, "Only arithmetic types allowed for tvec3!");
+
 	union {
 		struct { T x, y, z; };
 		struct { T r, g, b; };

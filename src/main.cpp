@@ -70,12 +70,11 @@ int main()
 
 
 	auto prevtime = Timer();
-	float deltaTime = 0.0f; 
+	double deltaTime = 0.0f; 
 
 	float ang = 0.0f;
 	std::string input;
-	int eraseTime = Timer();
-	int rot = 0;
+	auto eraseTime = Timer();
 
 	Vertex vertices[3] = { {-1.0f, -1.0f}, {0.0f, 1.0f}, {1.0f, -1.0f} };
 	vertices[0].setColor({ 1.0f, 0.0f, 0.0f, 1.0 });
@@ -83,7 +82,7 @@ int main()
 	vertices[2].setColor({ 0.0f, 0.0f, 1.0f, 1.0 });
 
 	int frames = 0, fps = 0;
-	float fpsTime = 0.0f;
+	double fpsTime = 0.0f;
 
 	while(!window.isClosed()) {
 		window.pollEvents();
@@ -99,7 +98,7 @@ int main()
 		mat4 mat;
 		mat = mat4::Perspective(4.0f/3.0f, 90.0f, .01f, 10.f) * mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::Rotation(ang, 0.0f, 1.0f, 0.0f);
 
-		ang += (float)(inputs.isKeyDown(VK_RIGHT) - inputs.isKeyDown(VK_LEFT)) * (deltaTime / 1000.0f) * 60.0f;
+		ang += (float)(inputs.isKeyDown(VK_RIGHT) - inputs.isKeyDown(VK_LEFT)) * ((float)deltaTime / 1000.0f) * 60.0f;
 		rc.fillTriangle(vertices[0].transformed(mat), vertices[1].transformed(mat), vertices[2].transformed(mat));
 
 		#endif 
@@ -130,11 +129,11 @@ int main()
 		#endif 
 		
 		auto tp = Timer();
-		deltaTime = tp - prevtime;
+		deltaTime = (double)(tp - prevtime);
 		prevtime = tp;
 		frames++;
-		fpsTime += (float)deltaTime / 1000.0f;
-		if(fpsTime > 1.0f) {
+		fpsTime += (double)deltaTime / 1000.0f;
+		if(fpsTime > 1.0) {
 			fps = frames; 
 			frames = 0;
 			fpsTime = 0;

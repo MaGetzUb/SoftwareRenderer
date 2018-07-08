@@ -59,17 +59,17 @@ class Starfield {
 		std::sort(mStars.begin(), mStars.end(), [](const Star& a, const Star& b) -> bool {
 			return a.z < b.z;
 		});
-		for(int i = 0; i < mStars.size(); i++) {
+		for(size_t i = 0; i < mStars.size(); i++) {
 
-			float sz = 1.0 / (mStars[i].z * 0.1f);
-			float sx = mCanvas->width() / 2 + mStars[i].x * sz * 10.0;
-			float sy = mCanvas->height() / 2 - mStars[i].y * sz * 10.0;
+			float sz = 1.f / (mStars[i].z * 0.1f);
+			float sx = mCanvas->width() / 2 + mStars[i].x * sz * 10.f;
+			float sy = mCanvas->height() / 2 - mStars[i].y * sz * 10.f;
 
 			mStars[i].z += 10.0f*(dt / 1000.0f);
 			if(mStars[i].z > 0) mStars[i].z = -512;
 			if(sx >= 0 && sx < mCanvas->width() && sy >= 0 && sy < mCanvas->height()) {
-				byte br = 255.0f*((512.0f + mStars[i].z) / 512.0f);
-				mCanvas->set(sx, sy, br, br, br);
+				byte br = (byte)(255.0f*((512.0f + mStars[i].z) / 512.0f));
+				mCanvas->set((int)sx, (int)sy, br, br, br);
 			}
 		}
 	}
