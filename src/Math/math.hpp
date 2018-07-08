@@ -73,4 +73,27 @@ inline T Mix(T a, T b, T c) {
 	return ((T)1 - c)*a + c*b;
 }
 
+
+inline int ToPixel(vec4 color) {
+	__m128 x = _mm_loadu_ps(&color[0]);
+	x = _mm_mul_ps(x, _mm_set1_ps(255.f));
+	__m128i y = _mm_cvtps_epi32(x);
+	y = _mm_packus_epi32(y, y);
+	y = _mm_packus_epi16(y, y);
+	return _mm_cvtsi128_si32(y);
+}
+
+inline vec4 ToVec4(int pixelColor) {
+	vec4 out;
+	__m128i y = _mm_cvtsi32_si128(pixelColor);
+	y = _mm_packus_epi16(y, y);
+	y = _mm_packus_epi32(y, y);
+	__m128 x = _mm_cvtepi32_ps(y);
+	x = _mm_div_ps(x, _mm_set1_ps(255.f));
+	_mm_storeu_ps((float*)&out, x);
+	return out;
+}
+
+
+
 #endif 
