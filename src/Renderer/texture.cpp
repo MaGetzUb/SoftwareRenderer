@@ -44,7 +44,7 @@ bool Texture::load(const std::string& path) {
 	for(int y = 0; y < mSize.y; y++)
 	for(int x = 0; x < mSize.x; x++)
 	{
-		mPixels[x + y * mSize.x] = ToVec4(*(int*)pixels);
+		mPixels[x + y * mSize.x] = PixelToVec4(*(int*)pixels);
 		pixels += 4;
 	}
 	stbi_image_free(pixels);
