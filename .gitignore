@@ -6,3 +6,4 @@ premake/premake5.exe
 *.vcxproj
 *.vcxproj.filters
 *.user 
+*.xcf
