@@ -79,7 +79,7 @@ class Texture {
 		inline vec4 sample(int x, int y) const { 
 			assert(x >= 0); 
 			assert(y >= 0);  
-			return mPixels[(x % mSize.x) + (y % mSize.y) * mSize.x]; 
+			return mPixels[x + y * mSize.x]; 
 		}
 
 		vec4 sample(float x, float y, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const;

@@ -33,33 +33,52 @@ class Gradients {
 	
 	vec4 mColors[3], mColorXStep, mColorYStep;
 	vec2 mTexCoord[3], mTexCoordXStep, mTexCoordYStep;
+	float mZDivisor[3], mZDivisorXStep, mZDivisorYStep;
+
+		template <class T>
+		static inline T CalculateStepX(T(&values)[3], float acy, float bcy, float oneOverDX) {
+			return ((values[1] - values[2]) * acy - (values[0] - values[2]) * bcy) * oneOverDX;
+		}
+
+		template <class T>
+		static inline T CalculateStepY(T(&values)[3], float acx, float bcx, float oneOverDY) {
+			return ((values[1] - values[2]) * acx - (values[0] - values[2]) * bcx) * oneOverDY;
+		}
 
 	public:
 
+
 		Gradients(const Vertex& a, const Vertex& b, const Vertex& c) {
 
-			mColors[0] = a.color();
-			mColors[1] = b.color();
-			mColors[2] = c.color();
+			mColors[0] = a.color() / a.w();
+			mColors[1] = b.color() / b.w();
+			mColors[2] = c.color() / c.w();
 
-			mTexCoord[0] = a.texCoord();
-			mTexCoord[1] = b.texCoord();
-			mTexCoord[2] = c.texCoord();
+			mTexCoord[0] = a.texCoord() / a.w();
+			mTexCoord[1] = b.texCoord() / b.w();
+			mTexCoord[2] = c.texCoord() / c.w();
+
+			mZDivisor[0] = 1.0f / a.w();
+			mZDivisor[1] = 1.0f / b.w();
+			mZDivisor[2] = 1.0f / c.w();
 
 			float oneOverDX = 1.0f / (((b.x() - c.x()) * (a.y() - c.y())) - ((a.x() - c.x()) * (b.y() - c.y())));
 			float oneOverDY = -oneOverDX;
 
-			float acx = a.x() - c.x();
 			float acy = a.y() - c.y();
-
-			float bcx = b.x() - c.x();
 			float bcy = b.y() - c.y();
 
-			mColorXStep = (((mColors[1] - mColors[2]) * acy) - ((mColors[0] - mColors[2]) * bcy)) * oneOverDX;
-			mColorYStep = (((mColors[1] - mColors[2]) * acx) - ((mColors[0] - mColors[2]) * bcx)) * oneOverDY;
+			float acx = a.x() - c.x();
+			float bcx = b.x() - c.x();
 
-			mTexCoordXStep = (((mTexCoord[1] - mTexCoord[2]) * acy) - ((mTexCoord[0] - mTexCoord[2]) * bcy)) * oneOverDX;
-			mTexCoordYStep = (((mTexCoord[1] - mTexCoord[2]) * acx) - ((mTexCoord[0] - mTexCoord[2]) * bcx)) * oneOverDY;
+			mColorXStep = CalculateStepX(mColors, acy, bcy, oneOverDX);
+			mColorYStep = CalculateStepY(mColors, acx, bcx, oneOverDY);
+
+			mTexCoordXStep = CalculateStepX(mTexCoord, acy, bcy, oneOverDX);
+			mTexCoordYStep = CalculateStepY(mTexCoord, acx, bcx, oneOverDY);
+		
+			mZDivisorXStep = CalculateStepX(mZDivisor, acy, bcy, oneOverDX);
+			mZDivisorYStep = CalculateStepY(mZDivisor, acx, bcx, oneOverDY);
 		}
 
 		const vec4& color(int index) const { return mColors[index]; }
@@ -73,6 +92,12 @@ class Gradients {
 		const vec2& texCoordXStep() const { return mTexCoordXStep; }
 
 		const vec2& texCoordYStep() const { return mTexCoordYStep; }
+
+		float zDivisor(int index) const { return mZDivisor[index]; }
+
+		float zDivisorXStep() const { return mZDivisorXStep; }
+
+		float zDivisorYStep() const { return mZDivisorYStep; }
 };
 
 

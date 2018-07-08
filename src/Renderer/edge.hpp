@@ -39,6 +39,8 @@ class Edge {
 	vec4 mColor, mColorStep;
 	vec2 mTexCoord, mTexCoordStep;
 
+	float mZDivisor, mZDivisorStep;
+
 	public: 
 
 		Edge(const Gradients& gradients, const Vertex& a, const Vertex& b, int minYVid) {
@@ -59,12 +61,16 @@ class Edge {
 
 			mTexCoord = gradients.texCoord(minYVid) + (gradients.texCoordYStep() * yOffset) + (gradients.texCoordXStep() * xOffset);
 			mTexCoordStep = gradients.texCoordYStep() + (gradients.texCoordXStep() * mXStep);
+
+			mZDivisor= gradients.zDivisor(minYVid) + (gradients.zDivisorYStep() * yOffset) + (gradients.zDivisorXStep() * xOffset);
+			mZDivisorStep = gradients.zDivisorYStep() + (gradients.zDivisorXStep() * mXStep);
 		}
 	
 		void step() {
 			mX += mXStep;
 			mColor += mColorStep;
 			mTexCoord += mTexCoordStep;
+			mZDivisor += mZDivisorStep;
 		}
 
 		float x() const { return mX; }
@@ -73,6 +79,8 @@ class Edge {
 		
 		int yEnd() const { return mYEnd; }
 		
+		float zDivisor() const { return mZDivisor; }
+
 		const vec4& color() const { return mColor; }
 
 		const vec2& texCoord() const { return mTexCoord; }

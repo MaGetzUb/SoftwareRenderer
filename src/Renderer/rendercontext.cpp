@@ -80,15 +80,18 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	int xMax = (int)ceilf(b->x());
 
 	float offset = xMin - a->x();
-	
+	float zDivisor = a->zDivisor() + gradients.zDivisorXStep() * offset;
+
 	vec4 color = a->color() + gradients.colorXStep() * offset;
 	vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
 	
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
-		mCanvas->set(x, y, mTexture->sample(texCoord)*color);
+		float z = 1.0f / zDivisor;
+		mCanvas->set(x, y, mTexture->sample(texCoord * z)*(color*z));
 		color += gradients.colorXStep();
 		texCoord += gradients.texCoordXStep();
+		zDivisor += gradients.zDivisorXStep();
 	}
 }
 
