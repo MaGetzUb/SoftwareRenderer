@@ -37,6 +37,7 @@ class Edge {
 	int mYStart, mYEnd;
 	
 	vec4 mColor, mColorStep;
+	vec2 mTexCoord, mTexCoordStep;
 
 	public: 
 
@@ -55,17 +56,27 @@ class Edge {
 			
 			mColor = gradients.color(minYVid) + (gradients.colorYStep()*yOffset) + (gradients.colorXStep()*xOffset);
 			mColorStep = gradients.colorYStep() + (gradients.colorXStep() * mXStep);
+
+			mTexCoord = gradients.texCoord(minYVid) + (gradients.texCoordYStep() * yOffset) + (gradients.texCoordXStep() * xOffset);
+			mTexCoordStep = gradients.texCoordYStep() + (gradients.texCoordXStep() * mXStep);
 		}
 	
 		void step() {
 			mX += mXStep;
 			mColor += mColorStep;
+			mTexCoord += mTexCoordStep;
 		}
 
 		float x() const { return mX; }
+		
 		int yStart() const { return mYStart; }
+		
 		int yEnd() const { return mYEnd; }
+		
 		const vec4& color() const { return mColor; }
+
+		const vec2& texCoord() const { return mTexCoord; }
+
 };
 
 

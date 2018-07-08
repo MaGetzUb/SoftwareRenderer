@@ -42,11 +42,12 @@ bool Texture::load(const std::string& path) {
 	if(!pixels)
 		return false; 
 	mPixels = new vec4[mSize.x * mSize.y];
+	stbi_uc* ptr = pixels;
 	for(int y = 0; y < mSize.y; y++)
 	for(int x = 0; x < mSize.x; x++)
 	{
-		mPixels[x + y * mSize.x] = PixelToVec4(*(int*)pixels);
-		pixels += 4;
+		mPixels[x + y * mSize.x] = PixelToVec4(*(int*)ptr);
+		ptr += 4;
 	}
 	stbi_image_free(pixels);
 	return true;

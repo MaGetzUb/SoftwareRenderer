@@ -32,29 +32,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Math/matrix.hpp"
 #include "gradients.hpp"
 #include "edge.hpp"
-
+#include "texture.hpp"
+#include <vector>
 
 //Code based on TheBennybox' video tutorial series on software rendering
 class RenderContext {
 	
 	mat4 mScreenSpaceTransform;
 	Canvas* mCanvas = nullptr;
+	Texture* mTexture = nullptr;
+	std::vector<float> mDepthBuffer;
 
+	bool mUseTexture = false;
 
 	public: 
 		
 		RenderContext() = default;
 		RenderContext(Canvas& canvas): mCanvas(&canvas) {
 			mScreenSpaceTransform = mat4::ScreenSpace((float)canvas.width() * .5f, (float)canvas.height() * .5f);
+			mDepthBuffer.resize(canvas.width() * canvas.height());
 		}
 
 		void setCanvas(Canvas& canvas) { 
 			mCanvas = &canvas; 
 			mScreenSpaceTransform = mat4::ScreenSpace((float)canvas.width() * .5f, (float)canvas.height() * .5f);
+			mDepthBuffer.resize(canvas.width() * canvas.height());
 		}
 
+		inline void setTexture(Texture& texture) { mTexture = &texture; }
+		
+		inline void resetTexture() { mTexture = nullptr; }
+		
+		inline void setTextureUsage(bool b) { mUseTexture = b; }
 
-		void resetCanvas() { mCanvas = nullptr; }
+		inline bool isTexturing() const { return mUseTexture; }
+
+		inline void resetCanvas() { mCanvas = nullptr; }
 
 		void fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
 

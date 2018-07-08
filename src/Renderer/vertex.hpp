@@ -31,30 +31,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Math/matrix.hpp"
 #include "../Math/vec4.hpp"
 #include "../Math/vec3.hpp"
-
+#include "../Math/vec2.hpp"
 
 //Code based on TheBennybox' video tutorial series on software rendering
 class Vertex {
-	vec4 mPosition;
-	vec4 mColor; 
+	
+	vec4 mPosition = { 0.0f, 0.0f, 0.0f, 1.0f };
+	vec4 mColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	vec2 mTexCoord = { 0.0f, 0.0f };
+
 	public:
 
-		Vertex(const vec4& v, const vec4& color = vec4(1.f, 1.f, 1.f, 1.f)): mPosition(v), mColor(color) {}
-		Vertex(float x, float y, float z, float w): Vertex(vec4{ x, y, z, w }) {}
-		Vertex(float x, float y): Vertex(x, y, 0.0f, 1.0f) {}
-		Vertex(Vertex&& b) { std::swap(mPosition, b.mPosition); }
-		Vertex(): Vertex(0.0f, 0.0f, 0.0f, 1.0f) {}
-		Vertex(const Vertex& v): Vertex(v.mPosition, v.mColor) {}
+		Vertex() = default;
+		
+		Vertex(const vec4& v, const vec4& color = vec4(1.f, 1.f, 1.f, 1.f), const vec2& texCoord = vec2(0.f, 0.f)): 
+			mPosition(v), 
+			mColor(color), 
+			mTexCoord(texCoord) 
+		{}
+
+		Vertex(float x, float y, float z, float w): 
+			Vertex(vec4{ x, y, z, w }) 
+		{}
+
+		Vertex(float x, float y): 
+			Vertex(x, y, 0.0f, 1.0f) 
+		{}
+		
+		Vertex(Vertex&& b) { 
+			std::swap(mPosition, b.mPosition);
+			std::swap(mColor, b.mColor);
+			std::swap(mTexCoord, b.mTexCoord);
+		}
+		
+		Vertex(const Vertex& v): Vertex(v.mPosition, v.mColor, v.mTexCoord) {}
 
 		Vertex& operator=(const Vertex& b) {
 			mPosition = b.mPosition;
 			mColor = b.mColor;
+			mTexCoord = b.mTexCoord;
 			return *this;
 		}
 
 		Vertex& operator=(Vertex&& b) {
 			std::swap(mPosition, b.mPosition);
 			std::swap(mColor, b.mColor);
+			std::swap(mTexCoord, b.mTexCoord);
 			return *this;
 		}
 
@@ -66,7 +88,7 @@ class Vertex {
 		}
 
 		inline Vertex transformed(mat4 matrix) const {
-			return Vertex(matrix * mPosition, mColor);
+			return Vertex(matrix * mPosition, mColor, mTexCoord);
 		}
 
 		Vertex& perspectiveDivide() {
@@ -77,13 +99,16 @@ class Vertex {
 		}
 
 		Vertex perspectiveDivided() const {
-			return Vertex({mPosition.x / mPosition.w, mPosition.y / mPosition.w, mPosition.z / mPosition.w, mPosition.w}, mColor);
+			return Vertex({mPosition.x / mPosition.w, mPosition.y / mPosition.w, mPosition.z / mPosition.w, mPosition.w}, mColor, mTexCoord);
 		}
 
 		void setColor(const vec4& color) { mColor = color; }
 
+		void setTexCoord(const vec2& texCoord) { mTexCoord = texCoord; }
+
 		const vec4& color() const { return mColor; }
 
+		const vec2& texCoord() const { return mTexCoord; }
 
 		inline Vertex& setW(float w) {
 			mPosition.w = w;

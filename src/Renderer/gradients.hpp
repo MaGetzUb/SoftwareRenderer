@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Gradients {
 	
 	vec4 mColors[3], mColorXStep, mColorYStep;
+	vec2 mTexCoord[3], mTexCoordXStep, mTexCoordYStep;
 
 	public:
 
@@ -41,12 +42,24 @@ class Gradients {
 			mColors[1] = b.color();
 			mColors[2] = c.color();
 
+			mTexCoord[0] = a.texCoord();
+			mTexCoord[1] = b.texCoord();
+			mTexCoord[2] = c.texCoord();
+
 			float oneOverDX = 1.0f / (((b.x() - c.x()) * (a.y() - c.y())) - ((a.x() - c.x()) * (b.y() - c.y())));
 			float oneOverDY = -oneOverDX;
 
-			mColorXStep = (((mColors[1] - mColors[2]) * (a.y() - c.y())) - ((mColors[0] - mColors[2]) * (b.y() - c.y()))) * oneOverDX;
+			float acx = a.x() - c.x();
+			float acy = a.y() - c.y();
 
-			mColorYStep = (((mColors[1] - mColors[2]) * (a.x() - c.x())) - ((mColors[0] - mColors[2]) * (b.x() - c.x()))) * oneOverDY;
+			float bcx = b.x() - c.x();
+			float bcy = b.y() - c.y();
+
+			mColorXStep = (((mColors[1] - mColors[2]) * acy) - ((mColors[0] - mColors[2]) * bcy)) * oneOverDX;
+			mColorYStep = (((mColors[1] - mColors[2]) * acx) - ((mColors[0] - mColors[2]) * bcx)) * oneOverDY;
+
+			mTexCoordXStep = (((mTexCoord[1] - mTexCoord[2]) * acy) - ((mTexCoord[0] - mTexCoord[2]) * bcy)) * oneOverDX;
+			mTexCoordYStep = (((mTexCoord[1] - mTexCoord[2]) * acx) - ((mTexCoord[0] - mTexCoord[2]) * bcx)) * oneOverDY;
 		}
 
 		const vec4& color(int index) const { return mColors[index]; }
@@ -54,6 +67,12 @@ class Gradients {
 		const vec4& colorXStep() const { return mColorXStep; }
 
 		const vec4& colorYStep() const { return mColorYStep; }
+
+		const vec2& texCoord(int index) const { return mTexCoord[index]; }
+
+		const vec2& texCoordXStep() const { return mTexCoordXStep; }
+
+		const vec2& texCoordYStep() const { return mTexCoordYStep; }
 };
 
 

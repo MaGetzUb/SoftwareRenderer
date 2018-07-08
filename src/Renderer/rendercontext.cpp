@@ -82,10 +82,13 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	float offset = xMin - a->x();
 	
 	vec4 color = a->color() + gradients.colorXStep() * offset;
-
+	vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
+	
 	for(int x = xMin; x < xMax; x++) {
-		mCanvas->set(x, y, color);
+		//mCanvas->set(x, y, color);
+		mCanvas->set(x, y, mTexture->sample(texCoord)*color);
 		color += gradients.colorXStep();
+		texCoord += gradients.texCoordXStep();
 	}
 }
 
@@ -98,6 +101,7 @@ void RenderContext::scanEdge(const Gradients& gradients, Edge* a, Edge* b, bool 
 	int yStart = (int)b->yStart();
 	int yEnd = (int)b->yEnd();
 
+	if(mTexture)
 	for(int j = yStart; j < yEnd; j++) {
 		drawScanLine(gradients, left, right, j);
 		left->step();

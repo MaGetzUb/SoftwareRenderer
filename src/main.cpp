@@ -66,8 +66,14 @@ int main()
 	#endif 
 	#if TEST == RENDERCONTEXT
 	RenderContext rc(canvas);
-	#endif 
+	
 
+
+	Texture texture;
+	texture.load("res/texture1.png");
+	rc.setTexture(texture);
+	
+	#endif 
 
 	auto prevtime = Timer();
 	double deltaTime = 0.0f; 
@@ -79,10 +85,26 @@ int main()
 	auto eraseTime = Timer();
 	#endif 
 
-	Vertex vertices[3] = { {-1.0f, -1.0f}, {0.0f, 1.0f}, {1.0f, -1.0f} };
+	//TL---TR
+	//|     |
+	//|     |
+	//BL---BR
+
+	Vertex vertices[] = { 
+		{-1.0f, -1.0f}, //Bottom left  
+		{-1.0f,  1.0f}, //Top    left  
+		{ 1.0f,  1.0f}, //Top    right 
+		{ 1.0f, -1.0f}  //Bottom right 
+	};
 	vertices[0].setColor({ 1.0f, 0.0f, 0.0f, 1.0 });
-	vertices[1].setColor({ 0.0f, 1.0f, 0.0f, 1.0 });
+	vertices[1].setColor({ 1.0f, 1.0f, 0.0f, 1.0 });
 	vertices[2].setColor({ 0.0f, 0.0f, 1.0f, 1.0 });
+	vertices[3].setColor({ 0.0f, 1.0f, 1.0f, 1.0 });
+
+	vertices[0].setTexCoord({ 0.0f, 1.0f });
+	vertices[1].setTexCoord({ 0.0f, 0.0f });
+	vertices[2].setTexCoord({ 1.0f, 0.0f });
+	vertices[3].setTexCoord({ 1.0f, 1.0f });
 
 	int frames = 0, fps = 0;
 	double fpsTime = 0.0f;
@@ -103,6 +125,7 @@ int main()
 
 		ang += (float)(inputs.isKeyDown(VK_RIGHT) - inputs.isKeyDown(VK_LEFT)) * ((float)deltaTime / 1000.0f) * 60.0f;
 		rc.fillTriangle(vertices[0].transformed(mat), vertices[1].transformed(mat), vertices[2].transformed(mat));
+		rc.fillTriangle(vertices[0].transformed(mat), vertices[2].transformed(mat), vertices[3].transformed(mat));
 
 		#endif 
 
