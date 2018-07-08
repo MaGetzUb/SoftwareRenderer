@@ -33,6 +33,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "math.hpp"
 
 template <class T>
+struct tvec2;
+
+template <class T>
 struct tvec4;
 
 template <class T>

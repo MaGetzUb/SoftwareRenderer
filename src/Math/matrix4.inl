@@ -332,7 +332,7 @@ class alignas(16) tmat4: public tmat<T, 4, 4> {
 
 		void transform(const tvec3<T>& vec);
 
-		//void transform(const tvec2<T>& vec);
+		void transform(const tvec2<T>& vec);
 
 		tvec3<T> translation() const;
 

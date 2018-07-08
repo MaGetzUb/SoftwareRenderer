@@ -25,9 +25,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "texture.hpp"
-#include "../stb/stb_image.h" 
 
 #define STB_IMAGE_IMPLEMENTATION 
+#include "../stb/stb_image.h" 
+
 
 
 Texture::Texture(const std::string& path) {
