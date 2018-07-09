@@ -54,9 +54,9 @@ int main()
 {
 
 	Window window;
-	window.initialize(800, 600, "Software Renderer");
+	window.initialize(640, 480, "Software Renderer");
 	Canvas canvas(window);
-	canvas.resize(800, 600);
+	canvas.resize(640, 480);
 
 	float aRatio = 4.0f / 3.0f;
 
@@ -133,7 +133,7 @@ int main()
 
 	while(!window.isClosed()) {
 		window.pollEvents();
-		
+		rc.clearDepthBuffer();
 		canvas.clear(0, 0, 0);
 
 		#if TEST == STARFIELD 
@@ -147,8 +147,9 @@ int main()
 
 		ang += (float)(inputs.isKeyDown(VK_RIGHT) - inputs.isKeyDown(VK_LEFT)) * ((float)deltaTime / 1000.0f) * 60.0f;
 		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * (deltaTime/1000.f);
-		rc.fillTriangle(vertices[0].transformed(mat), vertices[1].transformed(mat), vertices[2].transformed(mat));
-		rc.fillTriangle(vertices[0].transformed(mat), vertices[2].transformed(mat), vertices[3].transformed(mat));
+
+		rc.drawMesh(mesh, mat, texture);
+
 
 		#endif 
 
