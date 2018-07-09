@@ -54,12 +54,13 @@ class Mesh {
 		}
 
 		~Mesh() {}
-
+		
+		//Warning assumes that an .obj file contains only triangualted meshes
 		bool load(const std::string& path);
 
 		const std::vector<Vertex>& vertices() const { return mVertices; }
 
-		const std::vector<uvec3> indices() const { return mTriangles; }
+		const std::vector<uvec3> triangles() const { return mTriangles; }
 
 };
 

@@ -34,6 +34,8 @@ class Gradients {
 	vec4 mColors[3], mColorXStep, mColorYStep;
 	vec2 mTexCoord[3], mTexCoordXStep, mTexCoordYStep;
 	float mZDivisor[3], mZDivisorXStep, mZDivisorYStep;
+	float mDepth[3], mDepthXStep, mDepthYStep;
+
 
 		template <class T>
 		static inline T CalculateStepX(T(&values)[3], float acy, float bcy, float oneOverDX) {
@@ -62,6 +64,10 @@ class Gradients {
 			mZDivisor[1] = 1.0f / b.w();
 			mZDivisor[2] = 1.0f / c.w();
 
+			mDepth[0] = a.z();
+			mDepth[1] = b.z();
+			mDepth[2] = c.z();
+
 			float oneOverDX = 1.0f / (((b.x() - c.x()) * (a.y() - c.y())) - ((a.x() - c.x()) * (b.y() - c.y())));
 			float oneOverDY = -oneOverDX;
 
@@ -79,25 +85,35 @@ class Gradients {
 		
 			mZDivisorXStep = CalculateStepX(mZDivisor, acy, bcy, oneOverDX);
 			mZDivisorYStep = CalculateStepY(mZDivisor, acx, bcx, oneOverDY);
+
+			mDepthXStep = CalculateStepX(mDepth, acy, bcy, oneOverDX);
+			mDepthYStep = CalculateStepY(mDepth, acx, bcx, oneOverDY);
 		}
 
-		const vec4& color(int index) const { return mColors[index]; }
 		
-		const vec4& colorXStep() const { return mColorXStep; }
-
-		const vec4& colorYStep() const { return mColorYStep; }
-
-		const vec2& texCoord(int index) const { return mTexCoord[index]; }
-
-		const vec2& texCoordXStep() const { return mTexCoordXStep; }
-
-		const vec2& texCoordYStep() const { return mTexCoordYStep; }
-
-		float zDivisor(int index) const { return mZDivisor[index]; }
-
-		float zDivisorXStep() const { return mZDivisorXStep; }
-
-		float zDivisorYStep() const { return mZDivisorYStep; }
+		inline const vec4& color(int index) const { return mColors[index]; }
+		
+		inline const vec4& colorXStep() const { return mColorXStep; }
+		
+		inline const vec4& colorYStep() const { return mColorYStep; }
+		
+		inline const vec2& texCoord(int index) const { return mTexCoord[index]; }
+		
+		inline const vec2& texCoordXStep() const { return mTexCoordXStep; }
+		
+		inline const vec2& texCoordYStep() const { return mTexCoordYStep; }
+		
+		inline float zDivisor(int index) const { return mZDivisor[index]; }
+		
+		inline float zDivisorXStep() const { return mZDivisorXStep; }
+		
+		inline float zDivisorYStep() const { return mZDivisorYStep; }
+		
+		inline float depth(int index) const { return mDepth[index]; }
+		
+		inline float depthXStep() const { return mDepthXStep; }
+		
+		inline float depthYStep() const { return mDepthYStep; }
 };
 
 

@@ -29,17 +29,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "edge.hpp"
 #include "gradients.hpp"
 
-float TriangleAreaDoubled(const Vertex& a, const Vertex& b, const Vertex& c) {
 
-	float x1 = b.x() - a.x();
-	float y1 = b.y() - a.y();
-	float x2 = c.x() - a.x();
-	float y2 = c.y() - a.y();
 
-	return x1*y2 - x2*y1;
+void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture) {
+	mTexture = &texture;
+
+	for(auto& face: mesh.triangles()) {
+		Vertex a, b, c;
+		a = mesh.vertices()[face[0]];
+		b = mesh.vertices()[face[1]];
+		c = mesh.vertices()[face[2]];
+		a.transform(transform);
+		b.transform(transform);
+		c.transform(transform);
+
+		fillTriangle(a, b, c);
+	}
+
 }
-
-
 
 void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c) {
 	Vertex tra = a;
@@ -52,6 +59,7 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 
 	Vertex* minYV = &tra,* midYV = &trb,* maxYV = &trc;
 
+	if(TriangleAreaDoubled(*minYV, *maxYV, *midYV) <= 0.0) return;
 
 	if(maxYV->y() < midYV->y()) std::swap(maxYV, midYV);
 	if(midYV->y() < minYV->y()) std::swap(midYV, minYV);
@@ -80,6 +88,7 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	int xMax = (int)ceilf(b->x());
 
 	float offset = xMin - a->x();
+	float depth = a->depth() + gradients.depthXStep() * offset;
 	float zDivisor = a->zDivisor() + gradients.zDivisorXStep() * offset;
 
 	vec4 color = a->color() + gradients.colorXStep() * offset;
@@ -88,10 +97,15 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
 		float z = 1.0f / zDivisor;
-		mCanvas->set(x, y, mTexture->sample(texCoord * z)*(color*z));
+		float& db = mDepthBuffer[x + y * mWidth];
+		if(depth < db) {
+			mCanvas->set(x, y, mTexture->sample(texCoord * z, Texture::Sampling::Linear)*(color*z));
+			db = depth;
+		}
 		color += gradients.colorXStep();
 		texCoord += gradients.texCoordXStep();
 		zDivisor += gradients.zDivisorXStep();
+		depth += gradients.depthXStep();
 	}
 }
 

@@ -41,6 +41,8 @@ class Edge {
 
 	float mZDivisor, mZDivisorStep;
 
+	float mDepth, mDepthStep;
+
 	public: 
 
 		Edge(const Gradients& gradients, const Vertex& a, const Vertex& b, int minYVid) {
@@ -64,6 +66,9 @@ class Edge {
 
 			mZDivisor= gradients.zDivisor(minYVid) + (gradients.zDivisorYStep() * yOffset) + (gradients.zDivisorXStep() * xOffset);
 			mZDivisorStep = gradients.zDivisorYStep() + (gradients.zDivisorXStep() * mXStep);
+
+			mDepth = gradients.depth(minYVid) + (gradients.depthYStep() * yOffset) + (gradients.depthXStep() * xOffset);
+			mDepthStep = gradients.depthYStep() + (gradients.depthXStep() * mXStep);
 		}
 	
 		void step() {
@@ -71,19 +76,22 @@ class Edge {
 			mColor += mColorStep;
 			mTexCoord += mTexCoordStep;
 			mZDivisor += mZDivisorStep;
+			mDepth += mDepthStep;
 		}
 
-		float x() const { return mX; }
+		inline float x() const { return mX; }
 		
-		int yStart() const { return mYStart; }
+		inline int yStart() const { return mYStart; }
 		
-		int yEnd() const { return mYEnd; }
+		inline int yEnd() const { return mYEnd; }
 		
-		float zDivisor() const { return mZDivisor; }
+		inline float zDivisor() const { return mZDivisor; }
 
-		const vec4& color() const { return mColor; }
+		inline float depth() const { return mDepth; }
 
-		const vec2& texCoord() const { return mTexCoord; }
+		inline const vec4& color() const { return mColor; }
+
+		inline const vec2& texCoord() const { return mTexCoord; }
 
 };
 

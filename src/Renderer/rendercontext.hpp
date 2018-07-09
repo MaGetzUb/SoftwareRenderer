@@ -41,26 +41,47 @@ class RenderContext {
 	
 	mat4 mScreenSpaceTransform;
 	Canvas* mCanvas = nullptr;
-	Texture* mTexture = nullptr;
-	std::vector<float> mDepthBuffer;
+	int mWidth, mHeight;
+	const Texture* mTexture = nullptr;
+	float* mDepthBuffer;
 
 	bool mUseTexture = false;
 
 	public: 
-		
+	
+		inline void clearDepthBuffer() {
+			__m128 fill = _mm_set_ps1(1.0f);
+			for(int i = 0; i < mWidth*mHeight; i += 4) {
+				_mm_store_ps((float*)mDepthBuffer + i, fill);
+			}
+		}
+
 		RenderContext() = default;
-		RenderContext(Canvas& canvas): mCanvas(&canvas) {
+		RenderContext(Canvas& canvas): 
+			mCanvas(&canvas) 
+		{
+			mWidth = mCanvas->width();
+			mHeight = mCanvas->height();
 			mScreenSpaceTransform = mat4::ScreenSpace((float)canvas.width() * .5f, (float)canvas.height() * .5f);
-			mDepthBuffer.resize(canvas.width() * canvas.height());
+			unsigned size = mWidth * mHeight * sizeof(float);
+			size += (size % 16);
+			mDepthBuffer = (float*)_aligned_malloc(size, 16);
 		}
 
 		void setCanvas(Canvas& canvas) { 
 			mCanvas = &canvas; 
+			mWidth = mCanvas->width();
+			mHeight = mCanvas->height();
 			mScreenSpaceTransform = mat4::ScreenSpace((float)canvas.width() * .5f, (float)canvas.height() * .5f);
-			mDepthBuffer.resize(canvas.width() * canvas.height());
+			unsigned size = mWidth * mHeight * sizeof(float);
+			size += (size % 16);
+			mDepthBuffer = (float*)_aligned_realloc(mDepthBuffer, size, 16);
 		}
 
-		inline void setTexture(Texture& texture) { mTexture = &texture; }
+		void drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture);
+
+
+		inline void setTexture(const Texture& texture) { mTexture = &texture; }
 		
 		inline void resetTexture() { mTexture = nullptr; }
 		
