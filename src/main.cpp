@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include "Renderer/rendercontext.hpp"
+#include "Renderer/mesh.hpp"
 #include "starfield.hpp"
 
 #define NONE 0
@@ -87,6 +88,10 @@ int main()
 
 	Texture texture;
 	texture.load("res/texture1.png");
+
+	Mesh mesh;
+	mesh.load("res/suzanne.obj");
+
 	rc.setTexture(texture);
 	
 	#endif 
