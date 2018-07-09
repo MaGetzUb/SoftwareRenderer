@@ -27,13 +27,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef RENDERCONTEXT_HPP
 #define RENDERCONTEXT_HPP
 
+#include <vector>
 #include "canvas.hpp"
 #include "vertex.hpp"
 #include "../Math/matrix.hpp"
+#include "mesh.hpp"
 #include "gradients.hpp"
-#include "edge.hpp"
 #include "texture.hpp"
-#include <vector>
+#include "edge.hpp"
 
 //Code based on TheBennybox' video tutorial series on software rendering
 class RenderContext {
