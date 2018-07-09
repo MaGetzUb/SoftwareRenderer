@@ -33,6 +33,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Math/vec3.hpp"
 #include "../Math/vec2.hpp"
 
+struct Plane {
+	vec3 normal;
+	float depth;
+};
+
 //Code based on TheBennybox' video tutorial series on software rendering
 class Vertex {
 	
@@ -132,5 +137,34 @@ class Vertex {
 		float w() const { return mPosition.w; }
 
 };
+
+
+inline float TriangleAreaDoubled(const Vertex& a, const Vertex& b, const Vertex& c) {
+
+	float x1 = b.x() - a.x();
+	float y1 = b.y() - a.y();
+	float x2 = c.x() - a.x();
+	float y2 = c.y() - a.y();
+
+	return x1 * y2 - x2 * y1;
+}
+
+static bool ClipEdge(const Plane& plane, const Vertex& a, const Vertex& b, Vertex& c) {
+
+	c = Vertex();
+
+	vec3 ab = b.xyz() - a.xyz();
+	vec3 p = plane.normal * plane.depth;
+	vec3 aop = a.xyz() - dot(a.xyz() - p, plane.normal)*plane.normal;
+	float amt = dot(ab, aop) / dot(ab, ab);
+	if(amt < 0.0 || amt > 1.0) return false;
+	
+	c.setPosition(a.xyz() + ab * amt);
+	c.setColor(a.color() * (1.0f - amt) + b.color() * amt);
+	c.setTexCoord(a.texCoord() * (1.0f - amt) + b.texCoord() * amt);
+
+	return true;
+}
+
 
 #endif 
