@@ -39,13 +39,13 @@ Canvas::Canvas(Window& window):
 
 Canvas::~Canvas() {
 	if(mBufferMemory) {
-		VirtualFree(mBufferMemory, 0, MEM_RELEASE);
+		_aligned_free(mBufferMemory);
 	}
 }
 
 void Canvas::resize(int w, int h) {
 	
-	if(mBufferMemory) VirtualFree(mBufferMemory, 0, MEM_RELEASE);
+	if(mBufferMemory) _aligned_free(mBufferMemory);
 	
 	mBufferInfo.bmiHeader.biSize = sizeof(mBufferInfo.bmiHeader);
 	mWidth = mBufferInfo.bmiHeader.biWidth = w;
@@ -55,7 +55,7 @@ void Canvas::resize(int w, int h) {
 	mBufferSize = w * h * bytesPerPixel;
 	mPitch = w * bytesPerPixel;
 
-	mBufferMemory = (unsigned char*)VirtualAlloc(0, mBufferSize, MEM_COMMIT, PAGE_READWRITE);
+	mBufferMemory = (byte*)_aligned_malloc(mWidth*mHeight*sizeof(int), 16);
 
 }
 
@@ -64,7 +64,11 @@ void Canvas::swapBuffers() const {
 }
 
 void Canvas::clear(unsigned int color) {
-	memset(mBufferMemory, color, mBufferSize);
+	__m128i pixel = _mm_set1_epi32(color);
+	const int pixels = mWidth * mHeight;
+	for(int i = 0; i < pixels; i+=4) {
+		_mm_store_si128((__m128i*)(mBufferMemory+i*4), pixel);
+	}
 }
 
 
