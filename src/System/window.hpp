@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define WINDOW_HPP
 
 #include <windows.h>
+#include <windowsx.h>
 #include <string>
 #include <functional>
 

@@ -48,16 +48,32 @@ int CALLBACK WinMain(
 	int       /*nCmdShow*/
 )
 #else
-int main() 
+int main()
 #endif 
 {
 
-	Window window; 
+	Window window;
 	window.initialize(800, 600, "Software Renderer");
 	Canvas canvas(window);
 	canvas.resize(800, 600);
 
-	InputManager inputs; 
+	float aRatio = 4.0f / 3.0f;
+
+
+
+	InputManager inputs;
+
+	inputs.setCustomMessageCallback([&aRatio](Window& window, UINT msg, WPARAM wparam, LPARAM lparam)->LRESULT {
+		switch(msg) {
+			case WM_SIZE: {
+				float w = GET_X_LPARAM(lparam);
+				float h = GET_Y_LPARAM(lparam);
+				aRatio = w / h;
+			} break;
+		}
+		return window.defaultWindowProc(msg, wparam, lparam);
+	});
+	
 	window.setMessageCallback(inputs.callbackProcessor());
 
 
@@ -107,6 +123,7 @@ int main()
 	vertices[3].setTexCoord({ 1.0f, 1.0f });
 
 	int frames = 0, fps = 0;
+	float z = -2.0f;
 	double fpsTime = 0.0f;
 
 	while(!window.isClosed()) {
@@ -121,9 +138,10 @@ int main()
 
 
 		mat4 mat;
-		mat = mat4::Perspective(4.0f/3.0f, 90.0f, .01f, 10.f) * mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::Rotation(ang, 0.0f, 1.0f, 0.0f);
+		mat = mat4::Perspective(aRatio, 90.0f, .01f, 10.f) * mat4::Translate(0.0f, 0.0f, z) * mat4::Rotation(ang, 0.0f, 1.0f, 0.0f);
 
 		ang += (float)(inputs.isKeyDown(VK_RIGHT) - inputs.isKeyDown(VK_LEFT)) * ((float)deltaTime / 1000.0f) * 60.0f;
+		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * (deltaTime/1000.f);
 		rc.fillTriangle(vertices[0].transformed(mat), vertices[1].transformed(mat), vertices[2].transformed(mat));
 		rc.fillTriangle(vertices[0].transformed(mat), vertices[2].transformed(mat), vertices[3].transformed(mat));
 
