@@ -35,20 +35,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Mesh {
 
 	std::vector<Vertex> mVertices; 
-	std::vector<unsigned> mIndices; 
+	std::vector<uvec3> mTriangles; 
 
 	public:
 
-	Mesh() {}
-	~Mesh() {}
+		Mesh() {}
+		Mesh(const Mesh& b) = delete;
 
-	bool load(const std::string& path);
+		Mesh(Mesh&& b) {
+			std::swap(mVertices, b.mVertices);
+			std::swap(mTriangles, b.mTriangles);
+		}
 
+		Mesh& operator=(Mesh&& b) {
+			std::swap(mVertices, b.mVertices);
+			std::swap(mTriangles, b.mTriangles);
+			return *this;
+		}
 
+		~Mesh() {}
 
-	const std::vector<Vertex>& vertices() const { return mVertices; }
+		bool load(const std::string& path);
 
-	const std::vector<unsigned> indices() const { return mIndices; }
+		const std::vector<Vertex>& vertices() const { return mVertices; }
+
+		const std::vector<uvec3> indices() const { return mTriangles; }
 
 };
 

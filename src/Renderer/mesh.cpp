@@ -53,13 +53,18 @@ bool Mesh::load(const std::string & path) {
 			//vertices for many faces, especially
 			//when texture coordiantes are utilized
 
-			int vids[3], vtids[3], faceIndices[3];
+			int vids[3], vtids[3];
+			unsigned faceIndices[3];
 			char garbage;
 
 			lineStream >> vids[0] >> garbage >> vtids[0] >>
 						  vids[1] >> garbage >> vtids[1] >>
 						  vids[2] >> garbage >> vtids[2];
 
+			for(int i = 0; i < 3; i++) {
+				vids[i]--;
+				vtids[i]--;
+			}
 			
 			int i = 0; //Lambda for finding certain vertex, if it doesn't found *
 			auto findFunc = [&](const Vertex& v) -> bool {
@@ -83,9 +88,8 @@ bool Mesh::load(const std::string & path) {
 			}
 
 			//Now we should have all face indices for single face. Hooray.
-			mIndices.push_back(faceIndices[0]);
-			mIndices.push_back(faceIndices[1]);
-			mIndices.push_back(faceIndices[2]);
+			mTriangles.push_back({ faceIndices[0], faceIndices[1], faceIndices[2] });
+	
 		}
 
 	}
