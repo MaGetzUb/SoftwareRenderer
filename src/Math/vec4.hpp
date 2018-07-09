@@ -359,14 +359,10 @@ inline int Vec4ToPixel(const vec4& color) {
 }
 
 inline vec4 PixelToVec4(int pixelColor) {
-	vec4 out;
-	__m128i y = _mm_set_epi32(pixelColor >> 24 & 0xff, pixelColor >> 16 & 0xff, pixelColor >> 8 & 0xff, pixelColor & 0xff);
-	//y = _mm_packus_epi16(y, y);
-	//y = _mm_packs_epi32(y, y);
+	__m128i y = _mm_set_epi32(*(((unsigned char*)&pixelColor) + 3), *(((unsigned char*)&pixelColor) + 2), *(((unsigned char*)&pixelColor) + 1), *(((unsigned char*)&pixelColor)));
 	__m128 x = _mm_cvtepi32_ps(y);
 	x = _mm_div_ps(x, _mm_set1_ps(255.f));
-	_mm_storeu_ps((float*)&out, x);
-	return out;
+	return *(vec4*)&x;
 }
 
 
