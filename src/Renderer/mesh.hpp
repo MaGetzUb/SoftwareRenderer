@@ -58,10 +58,19 @@ class Mesh {
 		//Warning assumes that an .obj file contains only triangualted meshes
 		bool load(const std::string& path);
 
-		const std::vector<Vertex>& vertices() const { return mVertices; }
+		inline const std::vector<Vertex>& vertices() const { return mVertices; }
 
-		const std::vector<uvec3> triangles() const { return mTriangles; }
+		inline const std::vector<uvec3> triangles() const { return mTriangles; }
 
+		//Some functions, for convenience.
+
+		inline const Vertex& vertex(unsigned index) const { return mVertices[index]; }
+
+		inline unsigned vertexCount() const { return mVertices.size(); }
+
+		inline const uvec3& triangle(unsigned index) const { return mTriangles[index]; }
+
+		inline unsigned triangleCount() const { return mTriangles.size(); }
 };
 
 #endif //MESH_HPP
