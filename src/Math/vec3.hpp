@@ -518,5 +518,5 @@ static tvec3<T> Mix(const tvec3<T>& a, const tvec3<T>& b, T amt) {
 }
 
 
-#endif // VEC3
+#endif // VEC3_HPP
 

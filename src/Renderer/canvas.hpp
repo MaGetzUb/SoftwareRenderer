@@ -95,4 +95,4 @@ class Canvas {
 };
 
 
-#endif 
+#endif //CANVAS_HPP

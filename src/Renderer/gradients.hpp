@@ -117,4 +117,4 @@ class Gradients {
 };
 
 
-#endif 
+#endif //GRADIENTS_HPP

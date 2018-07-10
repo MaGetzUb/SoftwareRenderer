@@ -74,4 +74,4 @@ class InputManager { //An input manager
 		LRESULT process(Window& window, UINT msg, WPARAM wparam, LPARAM lparam);
 };
 
-#endif 
+#endif //INPUTMANAGER_HPP

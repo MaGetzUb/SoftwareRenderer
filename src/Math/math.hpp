@@ -76,4 +76,4 @@ inline T Mix(T a, T b, T c) {
 
 
 
-#endif 
+#endif //MATH_HPP

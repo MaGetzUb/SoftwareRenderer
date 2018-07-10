@@ -370,5 +370,5 @@ inline vec4 PixelToVec4(int pixelColor) {
 
 
 
-#endif // VEC4
+#endif // VEC4_HPP
 

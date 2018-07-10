@@ -167,4 +167,4 @@ static bool ClipEdge(const Plane& plane, const Vertex& a, const Vertex& b, Verte
 }
 
 
-#endif 
+#endif //VERTEX_HPP

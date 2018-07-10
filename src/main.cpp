@@ -159,10 +159,10 @@ int main()
 		#endif 
 		canvas.swapBuffers();
 
-		RECT rct = { 0, 0, 800, 300 };
 
 
 		#ifdef TEXT_INPUT_TEST
+		RECT rct = { 0, 0, 800, 300 };
 		unsigned int ch;
 		if(inputs.isTextInput(ch)) {
 			if(isprint(ch)) {
@@ -182,7 +182,7 @@ int main()
 		deltaTime = (double)(tp - prevtime);
 		prevtime = tp;
 		frames++;
-		fpsTime += (double)deltaTime / 1000.0f;
+		fpsTime += (double)deltaTime / 1000.0;
 		if(fpsTime > 1.0) {
 			fps = frames; 
 			frames = 0;

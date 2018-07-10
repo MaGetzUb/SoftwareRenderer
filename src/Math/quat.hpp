@@ -478,5 +478,5 @@ typedef tquat<float> quat;
 typedef tquat<double> dquat;
 
 
-#endif // QUAT
+#endif // QUAT_HPP
 

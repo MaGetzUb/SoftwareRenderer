@@ -33,4 +33,4 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 unsigned long long Timer();
 
-#endif 
+#endif //TIMER_HPP

@@ -105,4 +105,4 @@ class RenderContext {
 };
 
 
-#endif 
+#endif //RENDERCONTEXT_HPP

@@ -76,4 +76,4 @@ class Starfield {
 
 };
 
-#endif 
+#endif //STARFIELD_HPP
