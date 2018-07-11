@@ -71,14 +71,14 @@ class Vertex {
 		
 		Vertex(const Vertex& v): Vertex(v.mPosition, v.mColor, v.mTexCoord) {}
 
-		Vertex& operator=(const Vertex& b) {
+		inline Vertex& operator=(const Vertex& b) {
 			mPosition = b.mPosition;
 			mColor = b.mColor;
 			mTexCoord = b.mTexCoord;
 			return *this;
 		}
 
-		Vertex& operator=(Vertex&& b) {
+		inline Vertex& operator=(Vertex&& b) {
 			std::swap(mPosition, b.mPosition);
 			std::swap(mColor, b.mColor);
 			std::swap(mTexCoord, b.mTexCoord);
@@ -96,24 +96,24 @@ class Vertex {
 			return Vertex(matrix * mPosition, mColor, mTexCoord);
 		}
 
-		Vertex& perspectiveDivide() {
+		inline Vertex& perspectiveDivide() {
 			mPosition.x /= mPosition.w;
 			mPosition.y /= mPosition.w;
 			mPosition.z /= mPosition.w;
 			return *this;
 		}
 
-		Vertex perspectiveDivided() const {
+		inline Vertex perspectiveDivided() const {
 			return Vertex({mPosition.x / mPosition.w, mPosition.y / mPosition.w, mPosition.z / mPosition.w, mPosition.w}, mColor, mTexCoord);
 		}
 
-		void setColor(const vec4& color) { mColor = color; }
+		inline void setColor(const vec4& color) { mColor = color; }
 
-		void setTexCoord(const vec2& texCoord) { mTexCoord = texCoord; }
+		inline void setTexCoord(const vec2& texCoord) { mTexCoord = texCoord; }
 
-		const vec4& color() const { return mColor; }
+		inline const vec4& color() const { return mColor; }
 
-		const vec2& texCoord() const { return mTexCoord; }
+		inline const vec2& texCoord() const { return mTexCoord; }
 
 		inline Vertex& setW(float w) {
 			mPosition.w = w;
@@ -127,14 +127,25 @@ class Vertex {
 			return *this;
 		}
 
-		const vec4& position() const { return mPosition; }
-		vec3 xyz() const { return mPosition.xyz(); }
+		inline const vec4& position() const { return mPosition; }
+		inline vec3 xyz() const { return mPosition.xyz(); }
+
+		inline float xyzwComponent(int index) const { return mPosition[index]; }
+
+		inline float x() const { return mPosition.x; }
+		inline float y() const { return mPosition.y; }
+		inline float z() const { return mPosition.z; }
+		inline float w() const { return mPosition.w; }
 
 
-		float x() const { return mPosition.x; }
-		float y() const { return mPosition.y; }
-		float z() const { return mPosition.z; }
-		float w() const { return mPosition.w; }
+		static Vertex Mix(const Vertex& a, const Vertex& b, float amt) {
+			Vertex out;
+			out.mPosition = a.mPosition * (1.0f - amt) + b.mPosition * amt;
+			out.mColor = a.mColor * (1.0f - amt) + b.mColor * amt;
+			out.mTexCoord = a.mTexCoord * (1.0f - amt) + b.mTexCoord * amt;
+			return out;
+		}
+
 
 };
 
@@ -159,9 +170,7 @@ static bool ClipEdge(const Plane& plane, const Vertex& a, const Vertex& b, Verte
 	float amt = dot(ab, aop) / dot(ab, ab);
 	if(amt < 0.0 || amt > 1.0) return false;
 	
-	c.setPosition(a.xyz() + ab * amt);
-	c.setColor(a.color() * (1.0f - amt) + b.color() * amt);
-	c.setTexCoord(a.texCoord() * (1.0f - amt) + b.texCoord() * amt);
+	c = Vertex::Mix(a, b, amt);
 
 	return true;
 }
