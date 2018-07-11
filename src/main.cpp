@@ -87,10 +87,10 @@ int main()
 
 
 	Texture texture;
-	texture.load("res/texture1.png");
+	texture.load("res/texture2.png");
 
 	Mesh mesh;
-	mesh.load("res/suzanne.obj");
+	mesh.load("res/terrain.obj");
 
 	rc.setTexture(texture);
 	
@@ -131,6 +131,10 @@ int main()
 	float z = -2.0f;
 	double fpsTime = 0.0f;
 
+	float cameraYaw = 0.0f; 
+	float cameraPitch = 0.0f;
+	vec3 cameraPosition; 
+
 	while(!window.isClosed()) {
 		window.pollEvents();
 		rc.clearDepthBuffer();
@@ -143,9 +147,41 @@ int main()
 
 
 		mat4 mat;
-		mat = mat4::Perspective(aRatio, 90.0f, .01f, 10.f) * mat4::Translate(0.0f, 0.0f, z) * mat4::Rotation(ang, 0.0f, 1.0f, 0.0f);
 
-		ang += (float)(inputs.isKeyDown(VK_RIGHT) - inputs.isKeyDown(VK_LEFT)) * ((float)deltaTime / 1000.0f) * 60.0f;
+		if(inputs.isMouseDown(0)) {
+			//ShowCursor(FALSE);
+			RECT rct;
+			GetWindowRect(window.handle(), &rct);
+			
+			int centerX = rct.left + (rct.right - rct.left) / 2;
+			int centerY = rct.top + (rct.bottom - rct.top) / 2;
+
+			float mx = inputs.mouseMoveX();
+			float my = inputs.mouseMoveY();
+
+			cameraPitch += mx * deltaTime / 1000.0f;;
+			cameraYaw += my * deltaTime / 1000.0f;;
+			
+			SetCursorPos(centerX, centerY);
+		}
+
+		//cameraPitch += (float)(inputs.isKeyDown(VK_LEFT) - inputs.isKeyDown(VK_RIGHT)) * 100.f * deltaTime / 1000.0f;
+		//cameraYaw += (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * 100.f * deltaTime / 1000.0f;
+		mat4 rotation = mat4::Rotation(cameraYaw, 1.0f, 0.0f, 0.0f)*mat4::Rotation(cameraPitch, 0.0f, 1.0f, 0.0f);
+
+		if(inputs.isKeyDown('W')) {
+			cameraPosition += rotation.transposed() * vec3(0.f, 0.f, 5.f) * (deltaTime / 1000.f);
+		}
+
+		if(inputs.isKeyDown('S')) {
+			cameraPosition -= rotation.transposed() * vec3(0.f, 0.f, 5.f) * (deltaTime / 1000.f);
+		}
+
+		mat4 model = mat4::Translate(0.0f, -4.0f, 0.0f);
+
+		mat4 view = rotation * mat4::Translate(cameraPosition);
+
+		mat = mat4::Perspective(aRatio, 90.0f, .01f, 100.f) * view * model;
 		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * (deltaTime/1000.f);
 
 		rc.drawMesh(mesh, mat, texture);
