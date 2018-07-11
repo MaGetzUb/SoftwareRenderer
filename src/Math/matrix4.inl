@@ -145,8 +145,8 @@ class alignas(16) tmat4: public tmat<T, 4, 4> {
 			tmat4<T> mat((T)1);
 			mat[0][0] = halfWidth; 
 			mat[1][1] = -halfHeight;
-			mat[3][0] = halfWidth;
-			mat[3][1] = halfHeight;
+			mat[3][0] = halfWidth - (T).5;
+			mat[3][1] = halfHeight - (T).5;
 			return mat;
 		}
 
