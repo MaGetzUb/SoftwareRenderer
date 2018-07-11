@@ -76,15 +76,25 @@ class Texture {
 
 		int height() const { return mSize.y; }
 
-		inline vec4 sample(int x, int y) const { 
-			assert(x >= 0); 
-			assert(y >= 0);  
+		inline vec4 sample(int x, int y, Wraping wraping = Wraping::Repeat) const {
+
+			switch(wraping) {
+				case Wraping::Repeat: {
+					constexpr unsigned offset = (1 << 31)/2;
+					x = (unsigned)((offset-(offset%mSize.x)) + x) % (unsigned)mSize.x;
+					y = (unsigned)((offset-(offset%mSize.y)) + y) % (unsigned)mSize.y;
+				} break;
+				case Wraping::Clamp:
+					x = Clamp(x, 0, mSize.x);
+					y = Clamp(y, 0, mSize.y);
+				break;
+			}
 			return mPixels[x + y * mSize.x]; 
 		}
 
-		vec4 sample(float x, float y, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const;
+		vec4 sample(float x, float y, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const;
 
-		inline vec4 sample(const vec2& vec, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const { return sample(vec.x, vec.y, sampling, wraping); }
+		inline vec4 sample(const vec2& vec, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const { return sample(vec.x, vec.y, mipLevel, sampling, wraping); }
 };
 
 

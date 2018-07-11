@@ -35,40 +35,46 @@ bool Mesh::load(const std::string & path) {
 
 	std::vector<vec3> positions; //Collect all the vertex positions 
 	std::vector<vec2> texCoords; //and text coords first, before storing into member variables. 
+	std::vector<vec3> normals; //Same with the normals
 
+	float x, y, z;
 	while(std::getline(file, line)) {
 		std::stringstream lineStream(line);
 		std::string cmd;
 		lineStream >> cmd;
 		if(cmd == "v") {
-			float x, y, z;
 			lineStream >> x >> y >> z;
 			positions.push_back({ x, y, z });
 		} else if(cmd == "vt") {
-			float x, y;
 			lineStream >> x >> y;
 			texCoords.push_back({ x, y });
+		} else if(cmd == "vn") {
+			lineStream >> x >> y >> z;
+			normals.push_back({ x, y, z });
 		} else if(cmd == "f") {
 			//We have to basically duplicate
 			//vertices for many faces, especially
-			//when texture coordiantes are utilized
+			//when texture coordinates are utilized
 
-			int vids[3], vtids[3];
+			int vids[3], vtids[3], vnids[3];
 			unsigned faceIndices[3];
-			char garbage;
+			char crap;
 
-			lineStream >> vids[0] >> garbage >> vtids[0] >>
-						  vids[1] >> garbage >> vtids[1] >>
-						  vids[2] >> garbage >> vtids[2];
+			lineStream >> vids[0] >> crap >> vtids[0] >> crap >> vnids[0] >>
+						  vids[1] >> crap >> vtids[1] >> crap >> vnids[1] >>
+						  vids[2] >> crap >> vtids[2] >> crap >> vnids[2];
 
 			for(int i = 0; i < 3; i++) {
 				vids[i]--;
 				vtids[i]--;
+				vnids[i]--;
 			}
 			
 			int i = 0; //Lambda for finding certain vertex, if it doesn't found *
 			auto findFunc = [&](const Vertex& v) -> bool {
-				return v.position().xyz() == positions[vids[i]] && v.texCoord() == texCoords[vtids[i]];
+				return v.position().xyz() == positions[vids[i]] && 
+					   v.texCoord() == texCoords[vtids[i]] && 
+					   v.normal() == normals[vnids[i]];
 			};
 
 			//A side note; this process can be probably be optimized with hashmap.
@@ -81,8 +87,8 @@ bool Mesh::load(const std::string & path) {
 					faceIndices[i] = mVertices.size();
 					mVertices.push_back(Vertex(pos)); // * add it to the vertex list **
 					mVertices.back().setTexCoord(texCoords[vtids[i]]);
-				}
-				else {
+					mVertices.back().setNormal(normals[vnids[i]]);
+				} else {
 					faceIndices[i] = vId - mVertices.begin(); //** else, just calculate index and add it to face indices. 
 				}
 			}

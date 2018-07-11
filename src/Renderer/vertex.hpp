@@ -44,15 +44,17 @@ class Vertex {
 	vec4 mPosition = { 0.0f, 0.0f, 0.0f, 1.0f };
 	vec4 mColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	vec2 mTexCoord = { 0.0f, 0.0f };
+	vec3 mNormal = { 0.f, 0.f, 0.f };
 
 	public:
 
 		Vertex() = default;
 		
-		Vertex(const vec4& v, const vec4& color = vec4(1.f, 1.f, 1.f, 1.f), const vec2& texCoord = vec2(0.f, 0.f)): 
+		Vertex(const vec4& v, const vec4& color = vec4(1.f, 1.f, 1.f, 1.f), const vec2& texCoord = vec2(0.f, 0.f), const vec3& normal = vec3(0.f, 0.f, 0.f)) :
 			mPosition(v), 
 			mColor(color), 
-			mTexCoord(texCoord) 
+			mTexCoord(texCoord),
+			mNormal(normal)
 		{}
 
 		Vertex(float x, float y, float z, float w): 
@@ -67,14 +69,16 @@ class Vertex {
 			std::swap(mPosition, b.mPosition);
 			std::swap(mColor, b.mColor);
 			std::swap(mTexCoord, b.mTexCoord);
+			std::swap(mNormal, b.mNormal);
 		}
 		
-		Vertex(const Vertex& v): Vertex(v.mPosition, v.mColor, v.mTexCoord) {}
+		Vertex(const Vertex& v): Vertex(v.mPosition, v.mColor, v.mTexCoord, v.mNormal) {}
 
 		inline Vertex& operator=(const Vertex& b) {
 			mPosition = b.mPosition;
 			mColor = b.mColor;
 			mTexCoord = b.mTexCoord;
+			mNormal = b.mNormal;
 			return *this;
 		}
 
@@ -82,6 +86,7 @@ class Vertex {
 			std::swap(mPosition, b.mPosition);
 			std::swap(mColor, b.mColor);
 			std::swap(mTexCoord, b.mTexCoord);
+			std::swap(mNormal, b.mNormal);
 			return *this;
 		}
 
@@ -89,11 +94,13 @@ class Vertex {
 
 		inline Vertex& transform(mat4 matrix) {
 			mPosition = matrix * mPosition;
+			mNormal = (matrix * vec4(mNormal, 0.0f)).xyz();
+			mNormal.normalize();
 			return *this;
 		}
 
 		inline Vertex transformed(mat4 matrix) const {
-			return Vertex(matrix * mPosition, mColor, mTexCoord);
+			return Vertex(matrix * mPosition, mColor, mTexCoord, (matrix * vec4(mNormal, 0.f)).xyz());
 		}
 
 		inline Vertex& perspectiveDivide() {
@@ -104,20 +111,7 @@ class Vertex {
 		}
 
 		inline Vertex perspectiveDivided() const {
-			return Vertex({mPosition.x / mPosition.w, mPosition.y / mPosition.w, mPosition.z / mPosition.w, mPosition.w}, mColor, mTexCoord);
-		}
-
-		inline void setColor(const vec4& color) { mColor = color; }
-
-		inline void setTexCoord(const vec2& texCoord) { mTexCoord = texCoord; }
-
-		inline const vec4& color() const { return mColor; }
-
-		inline const vec2& texCoord() const { return mTexCoord; }
-
-		inline Vertex& setW(float w) {
-			mPosition.w = w;
-			return *this;
+			return Vertex({mPosition.x / mPosition.w, mPosition.y / mPosition.w, mPosition.z / mPosition.w, mPosition.w}, mColor, mTexCoord, mNormal);
 		}
 
 		inline Vertex& setPosition(const vec3& pos) { 
@@ -127,7 +121,26 @@ class Vertex {
 			return *this;
 		}
 
+		inline void setColor(const vec4& color) { mColor = color; }
+
+		inline void setTexCoord(const vec2& texCoord) { mTexCoord = texCoord; }
+
+		inline void setNormal(const vec3& normal) { mNormal = normal.normalized(); }
+
 		inline const vec4& position() const { return mPosition; }
+		
+		inline const vec4& color() const { return mColor; }
+
+		inline const vec2& texCoord() const { return mTexCoord; }
+
+		inline const vec3& normal() const { return mNormal; }
+
+		inline Vertex& setW(float w) {
+			mPosition.w = w;
+			return *this;
+		}
+
+
 		inline vec3 xyz() const { return mPosition.xyz(); }
 
 		inline float xyzwComponent(int index) const { return mPosition[index]; }
@@ -154,6 +167,7 @@ class Vertex {
 			out.mPosition = a.mPosition * (1.0f - amt) + b.mPosition * amt;
 			out.mColor = a.mColor * (1.0f - amt) + b.mColor * amt;
 			out.mTexCoord = a.mTexCoord * (1.0f - amt) + b.mTexCoord * amt;
+			out.mNormal = a.mNormal * (1.0f - amt) + b.mNormal * amt;
 			return out;
 		}
 

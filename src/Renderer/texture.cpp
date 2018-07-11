@@ -53,18 +53,11 @@ bool Texture::load(const std::string& path) {
 	return true;
 }
 
-vec4 Texture::sample(float x, float y, Sampling sampling, Wraping wraping) const {
+vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping wraping) const {
+	
+	x *= mSize.x;
+	y *= mSize.y;
 
-	switch(wraping) {
-		case Wraping::Repeat:
-			x = QMod(x * mSize.x, (float)mSize.x);
-			y = QMod(y * mSize.y, (float)mSize.y);
-		break;
-		case Wraping::Clamp:
-			x = Clamp(x * mSize.x, 0.f, (float)mSize.x);
-			y = Clamp(y * mSize.y, 0.f, (float)mSize.y);
-		break;
-	}
 	switch(sampling) {
 		case Sampling::None: return sample((int)x, (int)y); break;
 		case Sampling::Linear: 

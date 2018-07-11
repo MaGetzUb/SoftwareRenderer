@@ -33,15 +33,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Edge {
 	
-	float mX, mXStep;
 	int mYStart, mYEnd;
 	
+	float mX, mXStep;
 	vec4 mColor, mColorStep;
 	vec2 mTexCoord, mTexCoordStep;
-
 	float mZDivisor, mZDivisorStep;
-
 	float mDepth, mDepthStep;
+	vec3 mNormal, mNormalStep;
 
 	public: 
 
@@ -69,6 +68,9 @@ class Edge {
 
 			mDepth = gradients.depth(minYVid) + (gradients.depthYStep() * yOffset) + (gradients.depthXStep() * xOffset);
 			mDepthStep = gradients.depthYStep() + (gradients.depthXStep() * mXStep);
+		
+			mNormal = gradients.normal(minYVid) + (gradients.normalYStep() * yOffset) + (gradients.normalXStep() * xOffset);
+			mNormalStep = gradients.normalYStep() + (gradients.normalXStep() * mXStep);
 		}
 	
 		void step() {
@@ -77,6 +79,7 @@ class Edge {
 			mTexCoord += mTexCoordStep;
 			mZDivisor += mZDivisorStep;
 			mDepth += mDepthStep;
+			mNormal += mNormalStep;
 		}
 
 		inline float x() const { return mX; }
@@ -92,6 +95,8 @@ class Edge {
 		inline const vec4& color() const { return mColor; }
 
 		inline const vec2& texCoord() const { return mTexCoord; }
+
+		inline const vec3& normal() const { return mNormal;  }
 
 };
 

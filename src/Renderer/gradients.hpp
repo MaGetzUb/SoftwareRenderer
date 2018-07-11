@@ -35,7 +35,7 @@ class Gradients {
 	vec2 mTexCoord[3], mTexCoordXStep, mTexCoordYStep;
 	float mZDivisor[3], mZDivisorXStep, mZDivisorYStep;
 	float mDepth[3], mDepthXStep, mDepthYStep;
-
+	vec3 mNormal[3], mNormalXStep, mNormalYStep;
 
 		template <class T>
 		static inline T CalculateStepX(T(&values)[3], float acy, float bcy, float oneOverDX) {
@@ -68,6 +68,10 @@ class Gradients {
 			mDepth[1] = b.z();
 			mDepth[2] = c.z();
 
+			mNormal[0] = a.normal();
+			mNormal[1] = b.normal();
+			mNormal[2] = c.normal();
+
 			float oneOverDX = 1.0f / (((b.x() - c.x()) * (a.y() - c.y())) - ((a.x() - c.x()) * (b.y() - c.y())));
 			float oneOverDY = -oneOverDX;
 
@@ -88,6 +92,9 @@ class Gradients {
 
 			mDepthXStep = CalculateStepX(mDepth, acy, bcy, oneOverDX);
 			mDepthYStep = CalculateStepY(mDepth, acx, bcx, oneOverDY);
+		
+			mNormalXStep = CalculateStepX(mNormal, acy, bcy, oneOverDX);
+			mNormalYStep = CalculateStepY(mNormal, acx, bcx, oneOverDY);
 		}
 
 		
@@ -114,6 +121,12 @@ class Gradients {
 		inline float depthXStep() const { return mDepthXStep; }
 		
 		inline float depthYStep() const { return mDepthYStep; }
+
+		inline const vec3& normal(int index) const { return mNormal[index]; }
+
+		inline const vec3& normalXStep() const { return mNormalXStep; }
+
+		inline const vec3& normalYStep() const { return mNormalYStep; }
 };
 
 

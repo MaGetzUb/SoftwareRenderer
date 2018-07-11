@@ -50,43 +50,48 @@ void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Text
 
 void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c) {
 
+	auto clipVertices = [](const Vertex& a, const Vertex& b, const Vertex& c, std::vector<Vertex>& output) -> bool {
 
-	auto clipComponent = [](const std::vector<Vertex>& vertices, float cmpFactor, int cmpIndex, std::vector<Vertex>& out) {
-		const Vertex* prev = &vertices.back();
-		float prevCmpVal = prev->xyzwComponent(cmpIndex) * cmpFactor;
-		bool prevInside = prevCmpVal <= prev->w();
+		std::vector<Vertex> tmp1{ a, b, c }, tmp2;
+		auto ping = &tmp1, pong = &tmp2;
 
-		for(int i = 0; i < vertices.size(); i++) {
-			const Vertex* curr = &vertices[i];
-			float currCmpVal = curr->xyzwComponent(cmpIndex) * cmpFactor;
-			bool currInside = currCmpVal <= curr->w();
+		for(int i = 0; i < 3; i++) {
+			for(float j = -1.f; j <= 1.f; j += 2.f) {
 
-			if(currInside != prevInside) {
-				float mixAmt = (prev->w() - prevCmpVal) / ((prev->w() - prevCmpVal) - (curr->w() - currCmpVal));
-				out.push_back(Vertex::Mix(*prev, *curr, mixAmt));
+				const Vertex* prev = &ping->back();
+				float prevCmpVal = prev->xyzwComponent(i) * j;
+				bool prevInside = prevCmpVal <= prev->w();
+
+				for(int k = 0; k < ping->size(); k++) {
+					const Vertex* curr = &ping->at(k);
+
+					float currCmpVal = curr->xyzwComponent(i) * j;
+					bool currInside = currCmpVal <= curr->w();
+
+					if(currInside != prevInside) {
+						float mixAmt = (prev->w() - prevCmpVal) / ((prev->w() - prevCmpVal) - (curr->w() - currCmpVal));
+						pong->push_back(Vertex::Mix(*prev, *curr, mixAmt));
+					}
+
+					if(currInside) {
+						pong->push_back(*curr);
+					}
+
+					prev = curr;
+					prevCmpVal = currCmpVal;
+					prevInside = currInside;
+
+				}
+				ping->clear();
+				if(pong->empty()) return false;
+				std::swap(ping, pong);
 			}
-
-			if(currInside) {
-				out.push_back(*curr);
-			}
-
-			prev = curr;
-			prevCmpVal = currCmpVal;
-			prevInside = currInside;
 		}
-	};
-
-	auto clipPolygonAxis = [&clipComponent](std::vector<Vertex>& vertices, std::vector<Vertex>& aux, int index) -> bool {
-		clipComponent(vertices, 1.f, index, aux);
-		vertices.clear();
-		if(aux.empty()) return false;
-		clipComponent(aux, -1.f, index, vertices);
-		aux.clear();
-		if(vertices.empty()) return false;
+		if(ping->empty()) return false;
+		output = tmp1;
 		return true;
 	};
-
-
+	
 	auto fill = [this](const Vertex& a, const Vertex& b, const Vertex& c) {
 
 		Vertex tra = a;
@@ -120,18 +125,12 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 	}
 
 	std::vector<Vertex> vertices{ a, b, c };
-	std::vector<Vertex> aux;
 
-	if(clipPolygonAxis(vertices, aux, 0) &&
-	   clipPolygonAxis(vertices, aux, 1) &&
-	   clipPolygonAxis(vertices, aux, 2))
-	{
+	if(clipVertices(a, b, c, vertices)) {
 		for(int i = 1; i < (int)vertices.size()-1; i++) {
 			fill(vertices[0], vertices[i], vertices[i+1]);
 		}
 	}
-
-
 
 }
 
@@ -157,19 +156,27 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 
 	vec4 color = a->color() + gradients.colorXStep() * offset;
 	vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
+	vec3 normal = a->normal() + gradients.normalXStep() * offset;
 	
+	vec3 sunPos = vec3(4.f, -2.f, 16.f).normalized();
+
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
 		float z = 1.0f / zDivisor;
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
-			mCanvas->set(x, y, mTexture->sample(texCoord * z)*(color*z));
+
+			float sun = std::min(1.f, std::max(0.2f, dot(normal, sunPos)*4.0f));
+
+			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
+			mCanvas->set(x, y, mTexture->sample(texCoord * z, 1, Texture::Sampling::Linear) * (color * z) * sun);
 			db = depth;
 		}
 		color += gradients.colorXStep();
 		texCoord += gradients.texCoordXStep();
 		zDivisor += gradients.zDivisorXStep();
 		depth += gradients.depthXStep();
+		normal += gradients.normalXStep();
 	}
 }
 
