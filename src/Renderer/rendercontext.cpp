@@ -114,6 +114,10 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 
 	};
 
+	if(a.isInView() && b.isInView() && c.isInView()) {
+		fill(a, b, c);
+		return;
+	}
 
 	std::vector<Vertex> vertices{ a, b, c };
 	std::vector<Vertex> aux;
@@ -159,7 +163,7 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 		float z = 1.0f / zDivisor;
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
-			mCanvas->set(x, y, mTexture->sample(texCoord * z, Texture::Sampling::Linear)*(color*z));
+			mCanvas->set(x, y, mTexture->sample(texCoord * z)*(color*z));
 			db = depth;
 		}
 		color += gradients.colorXStep();

@@ -137,6 +137,17 @@ class Vertex {
 		inline float z() const { return mPosition.z; }
 		inline float w() const { return mPosition.w; }
 
+		inline bool isInView() const {
+			return !(
+				mPosition.x < -mPosition.w || 
+				mPosition.x >  mPosition.w || 
+				mPosition.y < -mPosition.w || 
+				mPosition.y >  mPosition.w || 
+				mPosition.z < -mPosition.w || 
+				mPosition.z >  mPosition.w
+			);
+		}
+
 
 		static Vertex Mix(const Vertex& a, const Vertex& b, float amt) {
 			Vertex out;
