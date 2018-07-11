@@ -49,25 +49,85 @@ void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Text
 }
 
 void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c) {
-	Vertex tra = a;
-	Vertex trb = b;
-	Vertex trc = c;
 
-	tra.transform(mScreenSpaceTransform).perspectiveDivide();
-	trb.transform(mScreenSpaceTransform).perspectiveDivide();
-	trc.transform(mScreenSpaceTransform).perspectiveDivide();
 
-	Vertex* minYV = &tra,* midYV = &trb,* maxYV = &trc;
+	auto clipComponent = [](const std::vector<Vertex>& vertices, float cmpFactor, int cmpIndex, std::vector<Vertex>& out) {
+		const Vertex* prev = &vertices.back();
+		float prevCmpVal = prev->xyzwComponent(cmpIndex) * cmpFactor;
+		bool prevInside = prevCmpVal <= prev->w();
 
-	if(TriangleAreaDoubled(*minYV, *maxYV, *midYV) <= 0.0) return;
+		for(int i = 0; i < vertices.size(); i++) {
+			const Vertex* curr = &vertices[i];
+			float currCmpVal = curr->xyzwComponent(cmpIndex) * cmpFactor;
+			bool currInside = currCmpVal <= curr->w();
 
-	if(maxYV->y() < midYV->y()) std::swap(maxYV, midYV);
-	if(midYV->y() < minYV->y()) std::swap(midYV, minYV);
-	if(maxYV->y() < midYV->y()) std::swap(maxYV, midYV);
+			if(currInside != prevInside) {
+				float mixAmt = (prev->w() - prevCmpVal) / ((prev->w() - prevCmpVal) - (curr->w() - currCmpVal));
+				out.push_back(Vertex::Mix(*prev, *curr, mixAmt));
+			}
 
-	bool handedness = TriangleAreaDoubled(*minYV, *maxYV, *midYV) >= 0.0;
+			if(currInside) {
+				out.push_back(*curr);
+			}
 
-	scanTriangle(*minYV, *midYV, *maxYV, handedness);
+			prev = curr;
+			prevCmpVal = currCmpVal;
+			prevInside = currInside;
+		}
+	};
+
+	auto clipPolygonAxis = [&clipComponent](std::vector<Vertex>& vertices, std::vector<Vertex>& aux, int index) -> bool {
+		clipComponent(vertices, 1.f, index, aux);
+		vertices.clear();
+		if(aux.empty()) return false;
+		clipComponent(aux, -1.f, index, vertices);
+		aux.clear();
+		if(vertices.empty()) return false;
+		return true;
+	};
+
+
+	auto fill = [this](const Vertex& a, const Vertex& b, const Vertex& c) {
+
+		Vertex tra = a;
+		Vertex trb = b;
+		Vertex trc = c;
+		
+
+
+		tra.transform(mScreenSpaceTransform).perspectiveDivide();
+		trb.transform(mScreenSpaceTransform).perspectiveDivide();
+		trc.transform(mScreenSpaceTransform).perspectiveDivide();
+
+		Vertex* minYV = &tra, *midYV = &trb, *maxYV = &trc;
+
+		if(TriangleAreaDoubled(*minYV, *maxYV, *midYV) <= 0.0) return;
+
+		if(maxYV->y() < midYV->y()) std::swap(maxYV, midYV);
+		if(midYV->y() < minYV->y()) std::swap(midYV, minYV);
+		if(maxYV->y() < midYV->y()) std::swap(maxYV, midYV);
+
+		bool handedness = TriangleAreaDoubled(*minYV, *maxYV, *midYV) >= 0.0;
+
+		scanTriangle(*minYV, *midYV, *maxYV, handedness);
+
+
+	};
+
+
+	std::vector<Vertex> vertices{ a, b, c };
+	std::vector<Vertex> aux;
+
+	if(clipPolygonAxis(vertices, aux, 0) &&
+	   clipPolygonAxis(vertices, aux, 1) &&
+	   clipPolygonAxis(vertices, aux, 2))
+	{
+		for(int i = 1; i < (int)vertices.size()-1; i++) {
+			fill(vertices[0], vertices[i], vertices[i+1]);
+		}
+	}
+
+
 
 }
 
