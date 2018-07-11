@@ -91,7 +91,7 @@ int InputManager::mouseZ() const {
 }
 
 int InputManager::mouseMoveX() const {
-	return mMouseMoveZ;
+	return mMouseMoveX;
 }
 
 int InputManager::mouseMoveY() const {
