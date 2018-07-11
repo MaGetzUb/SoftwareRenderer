@@ -73,6 +73,16 @@ inline T Mix(T a, T b, T c) {
 	return ((T)1 - c)*a + c*b;
 }
 
+template <class T>
+inline T Step(T v, T lb, T ub) {
+	return Clamp((v - lb) / (ub - lb), (T)0, (T)1);
+}
+
+template <class T>
+inline T SmoothStep(T v, T lb, T ub) {
+	T val = Clamp(v, lb, ub);
+	return val*val*(3.0f - 2.0f*val);
+}
 
 
 

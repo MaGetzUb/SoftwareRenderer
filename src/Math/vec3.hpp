@@ -410,6 +410,7 @@ inline static vec3 operator*(const mat4& m, const vec3& vec) {
 inline static vec3 operator*(const vec3& vec, const mat4& m) {
 #if 1
 
+	#if 1
 	// x*a + y*b + z*d + w*e
 	__m128 x = _mm_set1_ps(vec.x);
 	__m128 y = _mm_set1_ps(vec.y);
@@ -421,6 +422,18 @@ inline static vec3 operator*(const vec3& vec, const mat4& m) {
 	__m128 col3 = _mm_set_ps(m[0][2], m[1][2], m[2][2], m[3][2]);
 	__m128 col4 = _mm_set_ps(m[0][3], m[1][3], m[2][3], m[3][3]);
 	__m128 ans = _mm_add_ps(_mm_add_ps(_mm_mul_ps(x, col1), _mm_mul_ps(y, col2)), _mm_add_ps(_mm_mul_ps(z, col3), _mm_mul_ps(w, col4)));
+	#else 
+
+	__m128 col = _mm_set_ps(vec.x, vec.y, vec.z, 1.0f);
+
+	__m128 row1 = _mm_load_ps(&m[0][0]);
+	__m128 row2 = _mm_load_ps(&m[0][1]);
+	__m128 row3 = _mm_load_ps(&m[0][2]);
+	__m128 row4 = _mm_load_ps(&m[0][3]);
+
+	__m128 ans = _mm_add_ps(_mm_add_ps(_mm_mul_ps(row1, col), _mm_mul_ps(row2, col)), _mm_add_ps(_mm_mul_ps(row3, col), _mm_mul_ps(row4, col)));
+
+	#endif 
 	vec3 out{ans.m128_f32[3], ans.m128_f32[2], ans.m128_f32[1]};
 #else
 	vec3 out(vec.x*m[0][0] + vec.y*m[1][0] + vec.z*m[2][0] + m[3][0],

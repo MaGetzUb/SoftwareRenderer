@@ -85,7 +85,6 @@ class tmat_const_access {
 		inline const T& operator[](int row) const {
 			return mMatrix->ref(mColumn, row);
 		}
-
 };
 
 template <class T, int N, int M>
