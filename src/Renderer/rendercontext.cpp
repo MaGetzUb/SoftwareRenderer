@@ -50,7 +50,7 @@ void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Text
 
 void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c) {
 
-	auto clipVertices = [](const Vertex& a, const Vertex& b, const Vertex& c, std::vector<Vertex>& output) -> bool {
+	auto clipTriangle = [](const Vertex& a, const Vertex& b, const Vertex& c, std::vector<Vertex>& output) -> bool {
 
 		std::vector<Vertex> tmp1{ a, b, c }, tmp2;
 		auto ping = &tmp1, pong = &tmp2;
@@ -126,7 +126,7 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 
 	std::vector<Vertex> vertices{ a, b, c };
 
-	if(clipVertices(a, b, c, vertices)) {
+	if(clipTriangle(a, b, c, vertices)) {
 		for(int i = 1; i < (int)vertices.size()-1; i++) {
 			fill(vertices[0], vertices[i], vertices[i+1]);
 		}
