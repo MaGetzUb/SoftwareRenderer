@@ -63,6 +63,9 @@ vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping 
 	x *= mSize.x;
 	y *= mSize.y;
 
+	x /= mipLevel;
+	y /= mipLevel;
+
 	switch(sampling) {
 		case Sampling::None: return sample((int)x, (int)y); break;
 		case Sampling::Linear: 
@@ -75,6 +78,7 @@ vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping 
 				fracX = fracX * fracX * (3.f - 2.f*fracX);
 				fracY = fracY * fracY * (3.f - 2.f*fracX);
 			}
+
 
 			vec4 a = sample((int)x, (int)y);
 			vec4 b = sample((int)x + 1, (int)y);
