@@ -71,4 +71,12 @@ void Canvas::clear(unsigned int color) {
 	}
 }
 
+void Canvas::clear(const vec4& color) {
+	__m128i pixel = _mm_set1_epi32(Vec4ToPixel(color));
+	const int pixels = mWidth * mHeight;
+	for(int i = 0; i < pixels; i += 4) {
+		_mm_store_si128((__m128i*)(mBufferMemory + i * 4), pixel);
+	}
+}
+
 
