@@ -67,15 +67,15 @@ int main()
 
 	inputs.setCustomMessageCallback([&aRatio](Window& window, UINT msg, WPARAM wparam, LPARAM lparam)->LRESULT {
 		switch(msg) {
-			case WM_SIZE: {
-				float w = GET_X_LPARAM(lparam);
-				float h = GET_Y_LPARAM(lparam);
-				aRatio = w / h;
-			} break;
+		case WM_SIZE: {
+			float w = GET_X_LPARAM(lparam);
+			float h = GET_Y_LPARAM(lparam);
+			aRatio = w / h;
+		} break;
 		}
 		return window.defaultWindowProc(msg, wparam, lparam);
 	});
-	
+
 	window.setMessageCallback(inputs.callbackProcessor());
 
 
@@ -84,21 +84,29 @@ int main()
 	#endif 
 	#if TEST == RENDERCONTEXT
 	RenderContext rc(canvas);
-	
 
 
-	Texture texture;
-	texture.load("res/texture2.png");
+	Texture texture1;
+	texture1.load("res/texture1.png");
 
-	Mesh mesh;
-	mesh.load("res/terrain.obj");
 
-	rc.setTexture(texture);
-	
+	Texture texture2;
+	texture2.load("res/texture2.png");
+
+
+	Mesh mesh1;
+	mesh1.load("res/suzanne.obj");
+
+
+	Mesh mesh2;
+	mesh2.load("res/terrain.obj");
+
+	rc.setTexture(texture1);
+
 	#endif 
 
 	auto prevtime = Timer();
-	double deltaTime = 0.0f; 
+	double deltaTime = 0.0f;
 
 	float ang = 0.0f;
 
@@ -112,7 +120,7 @@ int main()
 	//|     |
 	//BL---BR
 
-	Vertex vertices[] = { 
+	Vertex vertices[] = {
 		{-1.0f, -1.0f}, //Bottom left  
 		{-1.0f,  1.0f}, //Top    left  
 		{ 1.0f,  1.0f}, //Top    right 
@@ -132,14 +140,23 @@ int main()
 	float z = -2.0f;
 	double fpsTime = 0.0f;
 
-	float cameraYaw = 0.0f; 
+	float cameraYaw = 0.0f;
 	float cameraPitch = 0.0f;
-	vec3 cameraPosition; 
+	vec3 cameraPosition;
+
+	rc.enableLighting(true);
+	rc.setAmbientColor({0.2f, 0.1f, 0.6f});
+	rc.setAmbientIntensity(0.3f);
+
+	rc.setSunColor({ 1.f, 0.6f, 0.2f });
+	rc.setSunIntensity(4.f);
+
+	rc.setSunPosition(vec3(16.f, 3.f, 8.f));
 
 	while(!window.isClosed()) {
 		window.pollEvents();
 		rc.clearDepthBuffer();
-		canvas.clear(0, 0, 0);
+		canvas.clear(vec4{.2f, .1f, .6f, 1.f} * 0.3f);
 
 		#if TEST == STARFIELD 
 		starfield.updateAndDraw(deltaTime);
@@ -183,15 +200,20 @@ int main()
 
 
 
-		mat4 model = mat4::Translate(0.0f, -4.0f, 0.0f);
 
-		mat4 view = rotation * mat4::Translate(cameraPosition);
+		mat4 viewProjection = mat4::Perspective(aRatio, 90.0f, .01f, 100.f) * rotation * mat4::Translate(cameraPosition);
 
-		mat = mat4::Perspective(aRatio, 90.0f, .01f, 100.f) * view * model;
 		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * deltaTime;
 
-		rc.drawMesh(mesh, mat, texture);
+		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f);
+		mat = viewProjection * model;
 
+
+		rc.drawMesh(mesh1, mat, texture1);
+
+		model = mat4::Translate(0.0f, -4.0f, 0.0f);
+		mat = viewProjection * model;
+		rc.drawMesh(mesh2, mat, texture2);
 
 		#endif 
 
