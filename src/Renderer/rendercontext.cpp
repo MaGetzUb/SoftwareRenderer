@@ -158,7 +158,7 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 	vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
 	vec3 normal = a->normal() + gradients.normalXStep() * offset;
 	
-	vec3 sunPos = vec3(4.f, -2.f, 16.f).normalized();
+	vec3 sunPos = vec3(mSunPosition).normalized();
 
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
@@ -166,10 +166,11 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
 
-			float sun = std::min(1.f, std::max(0.2f, dot(normal * z, sunPos)*4.0f));
+
+			vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
 
 			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
-			mCanvas->set(x, y, mTexture->sample(texCoord * z, 1, Texture::Sampling::Linear) * (color * z) * sun);
+			mCanvas->set(x, y, mTexture->sample(texCoord * z, 2, Texture::Sampling::Linear) * (color * z) * sun);
 			db = depth;
 		}
 		color += gradients.colorXStep();
@@ -191,7 +192,7 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	vec4 color = a->color() + gradients.colorXStep() * offset;
 	vec3 normal = a->normal() + gradients.normalXStep() * offset;
 
-	vec3 sunPos = vec3(4.f, -2.f, 16.f).normalized();
+	vec3 sunPos = vec3(mSunPosition).normalized();
 
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
@@ -199,7 +200,7 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
 
-			float sun = std::min(1.f, std::max(0.2f, dot(normal*z, sunPos)*4.0f));
+			vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
 
 			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
 			mCanvas->set(x, y, (color * z) * sun);
