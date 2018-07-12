@@ -36,6 +36,8 @@ class Texture {
 	vec4* mPixels = nullptr; //Store the pixel data as floats, so there's no need for byte -> float conversion.
 	ivec2 mSize; 
 	
+	uvec2 mTextureOffset; //We need this for repeat wrap mode, because of modulo operator
+
 	public:
 		
 		enum class Sampling {
@@ -80,9 +82,8 @@ class Texture {
 
 			switch(wraping) {
 				case Wraping::Repeat: {
-					constexpr unsigned offset = (1 << 31)/2;
-					x = (unsigned)((offset-(offset%mSize.x)) + x) % (unsigned)mSize.x;
-					y = (unsigned)((offset-(offset%mSize.y)) + y) % (unsigned)mSize.y;
+					x = (unsigned)(mTextureOffset.x + x) % (unsigned)mSize.x;
+					y = (unsigned)(mTextureOffset.y + y) % (unsigned)mSize.y;
 				} break;
 				case Wraping::Clamp:
 					x = Clamp(x, 0, mSize.x);

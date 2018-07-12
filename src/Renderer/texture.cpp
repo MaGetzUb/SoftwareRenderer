@@ -49,6 +49,11 @@ bool Texture::load(const std::string& path) {
 		mPixels[x + y * mSize.x] = PixelToVec4(*(int*)ptr);
 		ptr += 4;
 	}
+
+	constexpr unsigned middle = 1 << 31;
+	mTextureOffset.x = (middle / (unsigned)mSize.x) * (unsigned)mSize.x;
+	mTextureOffset.y = (middle / (unsigned)mSize.y) * (unsigned)mSize.y;
+
 	stbi_image_free(pixels);
 	return true;
 }
@@ -63,8 +68,8 @@ vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping 
 		case Sampling::Linear: 
 		case Sampling::CubicHermite:
 		{
-			float fracX = x - (int)x;
-			float fracY = y - (int)y; 
+			float fracX = x - floor(x);
+			float fracY = y - floor(y); 
 
 			if(sampling == Sampling::CubicHermite) {
 				fracX = fracX * fracX * (3.f - 2.f*fracX);
