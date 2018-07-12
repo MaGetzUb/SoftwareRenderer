@@ -86,8 +86,8 @@ class Texture {
 					y = (unsigned)(mTextureOffset.y + y) % (unsigned)mSize.y;
 				} break;
 				case Wraping::Clamp:
-					x = Clamp(x, 0, mSize.x);
-					y = Clamp(y, 0, mSize.y);
+					x = Clamp(x, 0, mSize.x-1);
+					y = Clamp(y, 0, mSize.y-1);
 				break;
 			}
 			return mPixels[x + y * mSize.x]; 
