@@ -50,27 +50,34 @@ class Gradients {
 	public:
 
 
-		Gradients(const Vertex& a, const Vertex& b, const Vertex& c) {
+		Gradients(bool perspectiveCorrected, const Vertex& a, const Vertex& b, const Vertex& c) {
+			
+			float oneOverW[3] = { 1.f, 1.f, 1.f };
+			if(perspectiveCorrected) {
+				oneOverW[0] /= a.w();
+				oneOverW[1] /= b.w();
+				oneOverW[2] /= c.w();
+			}
+		
+			mColors[0] = a.color() * oneOverW[0];
+			mColors[1] = b.color() * oneOverW[1];
+			mColors[2] = c.color() * oneOverW[2];
 
-			mColors[0] = a.color() / a.w();
-			mColors[1] = b.color() / b.w();
-			mColors[2] = c.color() / c.w();
+			mTexCoord[0] = a.texCoord() * oneOverW[0];
+			mTexCoord[1] = b.texCoord() * oneOverW[1];
+			mTexCoord[2] = c.texCoord() * oneOverW[2];
 
-			mTexCoord[0] = a.texCoord() / a.w();
-			mTexCoord[1] = b.texCoord() / b.w();
-			mTexCoord[2] = c.texCoord() / c.w();
-
-			mZDivisor[0] = 1.0f / a.w();
-			mZDivisor[1] = 1.0f / b.w();
-			mZDivisor[2] = 1.0f / c.w();
+			mZDivisor[0] = 1.0f * oneOverW[0];
+			mZDivisor[1] = 1.0f * oneOverW[1];
+			mZDivisor[2] = 1.0f * oneOverW[2];
 
 			mDepth[0] = a.z();
 			mDepth[1] = b.z();
 			mDepth[2] = c.z();
 
-			mNormal[0] = a.normal();
-			mNormal[1] = b.normal();
-			mNormal[2] = c.normal();
+			mNormal[0] = a.normal() * oneOverW[0];
+			mNormal[1] = b.normal() * oneOverW[1];
+			mNormal[2] = c.normal() * oneOverW[2];
 
 			float oneOverDX = 1.0f / (((b.x() - c.x()) * (a.y() - c.y())) - ((a.x() - c.x()) * (b.y() - c.y())));
 			float oneOverDY = -oneOverDX;
