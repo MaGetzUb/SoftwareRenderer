@@ -92,15 +92,14 @@ class Vertex {
 
 		~Vertex() {}
 
-		inline Vertex& transform(mat4 matrix) {
+		inline Vertex& transform(mat4 matrix, mat4 normalMatrix = mat4::Identity()) {
 			mPosition = matrix * mPosition;
-			mNormal = (matrix * vec4(mNormal, 0.0f)).xyz();
-			mNormal.normalize();
+			mNormal = (normalMatrix * vec4(mNormal, 0.f)).xyz();
 			return *this;
 		}
 
-		inline Vertex transformed(mat4 matrix) const {
-			return Vertex(matrix * mPosition, mColor, mTexCoord, (matrix * vec4(mNormal, 0.f)).xyz());
+		inline Vertex transformed(mat4 matrix, mat4 normalMatrix = mat4::Identity()) const {
+			return Vertex(matrix * mPosition, mColor, mTexCoord, (normalMatrix * vec4(mNormal, 0.f)).xyz());
 		}
 
 		inline Vertex& perspectiveDivide() {
