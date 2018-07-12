@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Renderer/rendercontext.hpp"
 #include "Renderer/mesh.hpp"
 #include "starfield.hpp"
+#include "Math/quat.hpp"
 
 #define NONE 0
 #define STARFIELD 1
@@ -148,19 +149,23 @@ int main()
 
 		mat4 mat;
 
+		if(inputs.isMouseHit(0)) ShowCursor(FALSE);
+		if(inputs.isMouseUp(0)) ShowCursor(TRUE);
 		if(inputs.isMouseDown(0)) {
-			//ShowCursor(FALSE);
+			
 			RECT rct;
 			GetWindowRect(window.handle(), &rct);
 			
 			int centerX = rct.left + (rct.right - rct.left) / 2;
 			int centerY = rct.top + (rct.bottom - rct.top) / 2;
+			POINT p = { centerX, centerY };
+			ScreenToClient(window.handle(), &p);
 
-			float mx = inputs.mouseMoveX();
-			float my = inputs.mouseMoveY();
+			float mx = p.x - inputs.mouseX();
+			float my = p.y - inputs.mouseY();
 
-			cameraPitch += mx * deltaTime / 1000.0f;;
-			cameraYaw += my * deltaTime / 1000.0f;;
+			cameraPitch += mx * deltaTime;
+			cameraYaw += my * deltaTime;
 			
 			SetCursorPos(centerX, centerY);
 		}
@@ -169,20 +174,21 @@ int main()
 		//cameraYaw += (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * 100.f * deltaTime / 1000.0f;
 		mat4 rotation = mat4::Rotation(cameraYaw, 1.0f, 0.0f, 0.0f)*mat4::Rotation(cameraPitch, 0.0f, 1.0f, 0.0f);
 
-		if(inputs.isKeyDown('W')) {
-			cameraPosition += rotation.transposed() * vec3(0.f, 0.f, 5.f) * (deltaTime / 1000.f);
-		}
+		vec3 dir = rotation.transposed() * vec3(0.f, 0.f, 1.f);
+		vec3 right = dir.rotated(90.f, { 0.f, 1.f, 0.f });
+		if(inputs.isKeyDown('W')) cameraPosition += dir*5.f * deltaTime;
+		if(inputs.isKeyDown('S')) cameraPosition -= dir*5.f * deltaTime;
+		if(inputs.isKeyDown('D')) cameraPosition += right*5.f * deltaTime;
+		if(inputs.isKeyDown('A')) cameraPosition -= -right*5.f * deltaTime;
 
-		if(inputs.isKeyDown('S')) {
-			cameraPosition -= rotation.transposed() * vec3(0.f, 0.f, 5.f) * (deltaTime / 1000.f);
-		}
+
 
 		mat4 model = mat4::Translate(0.0f, -4.0f, 0.0f);
 
 		mat4 view = rotation * mat4::Translate(cameraPosition);
 
 		mat = mat4::Perspective(aRatio, 90.0f, .01f, 100.f) * view * model;
-		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * (deltaTime/1000.f);
+		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * deltaTime;
 
 		rc.drawMesh(mesh, mat, texture);
 
@@ -215,10 +221,10 @@ int main()
 		#endif 
 		
 		auto tp = Timer();
-		deltaTime = (double)(tp - prevtime);
+		deltaTime = (double)(tp - prevtime) / 1000.0;
 		prevtime = tp;
 		frames++;
-		fpsTime += (double)deltaTime / 1000.0;
+		fpsTime += (double)deltaTime;
 		if(fpsTime > 1.0) {
 			fps = frames; 
 			frames = 0;
