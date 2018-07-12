@@ -70,11 +70,11 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 
 					if(currInside != prevInside) {
 						float mixAmt = (prev->w() - prevCmpVal) / ((prev->w() - prevCmpVal) - (curr->w() - currCmpVal));
-						pong->push_back(Vertex::Mix(*prev, *curr, mixAmt));
+						pong->emplace_back(Vertex::Mix(*prev, *curr, mixAmt));
 					}
 
 					if(currInside) {
-						pong->push_back(*curr);
+						pong->emplace_back(*curr);
 					}
 
 					prev = curr;
@@ -136,7 +136,7 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 
 void RenderContext::scanTriangle(const Vertex& a, const Vertex& b, const Vertex& c, bool handedness) {
 	
-	Gradients gradients(a, b, c);
+	Gradients gradients(mPerspectiveCorrected, a, b, c);
 	Edge topBottom(gradients, a, c, 0);
 	Edge topMiddle(gradients, a, b, 0);
 	Edge middleBottom(gradients, b, c, 1);
@@ -146,7 +146,7 @@ void RenderContext::scanTriangle(const Vertex& a, const Vertex& b, const Vertex&
 		
 }
 
-void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, int y) {
+void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Edge* b, int y) {
 	int xMin = (int)ceilf(a->x());
 	int xMax = (int)ceilf(b->x());
 
@@ -166,7 +166,7 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
 
-			float sun = std::min(1.f, std::max(0.2f, dot(normal, sunPos)*4.0f));
+			float sun = std::min(1.f, std::max(0.2f, dot(normal * z, sunPos)*4.0f));
 
 			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
 			mCanvas->set(x, y, mTexture->sample(texCoord * z, 1, Texture::Sampling::Linear) * (color * z) * sun);
@@ -180,6 +180,39 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	}
 }
 
+void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, int y) {
+	int xMin = (int)ceilf(a->x());
+	int xMax = (int)ceilf(b->x());
+
+	float offset = xMin - a->x();
+	float depth = a->depth() + gradients.depthXStep() * offset;
+	float zDivisor = a->zDivisor() + gradients.zDivisorXStep() * offset;
+
+	vec4 color = a->color() + gradients.colorXStep() * offset;
+	vec3 normal = a->normal() + gradients.normalXStep() * offset;
+
+	vec3 sunPos = vec3(4.f, -2.f, 16.f).normalized();
+
+	for(int x = xMin; x < xMax; x++) {
+		//mCanvas->set(x, y, color);
+		float z = 1.0f / zDivisor;
+		float& db = mDepthBuffer[x + y * mWidth];
+		if(depth < db) {
+
+			float sun = std::min(1.f, std::max(0.2f, dot(normal*z, sunPos)*4.0f));
+
+			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
+			mCanvas->set(x, y, (color * z) * sun);
+			db = depth;
+		}
+		color += gradients.colorXStep();
+		zDivisor += gradients.zDivisorXStep();
+		depth += gradients.depthXStep();
+		normal += gradients.normalXStep();
+	}
+}
+
+
 void RenderContext::scanEdge(const Gradients& gradients, Edge* a, Edge* b, bool handedness) {
 
 	Edge* left = a;
@@ -189,13 +222,16 @@ void RenderContext::scanEdge(const Gradients& gradients, Edge* a, Edge* b, bool 
 	int yStart = (int)b->yStart();
 	int yEnd = (int)b->yEnd();
 
-	if(mTexture)
-	for(int j = yStart; j < yEnd; j++) {
-		drawScanLine(gradients, left, right, j);
-		left->step();
-		right->step();
+	if(mTexture) {
+		for(int j = yStart; j < yEnd; j++) {
+			drawScanLineTextured(gradients, left, right, j);
+			left->step();
+			right->step();
+		}
 	}
+	else {
 
+	}
 }
 
 

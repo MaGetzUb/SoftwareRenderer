@@ -44,6 +44,7 @@ class RenderContext {
 	int mWidth, mHeight;
 	const Texture* mTexture = nullptr;
 	float* mDepthBuffer;
+	bool mPerspectiveCorrected = true;
 
 	bool mUseTexture = false;
 
@@ -98,11 +99,15 @@ class RenderContext {
 
 		void scanTriangle(const Vertex& a, const Vertex& b, const Vertex& c, bool handedness);
 
+		void drawScanLineTextured(const Gradients& gradients, Edge* a, Edge* b, int y);
+
 		void drawScanLine(const Gradients& gradients, Edge* a, Edge* b, int y);
 
 		void scanEdge(const Gradients& gradients, Edge* a, Edge* b, bool handedness);
 
+
 };
+
 
 
 #endif //RENDERCONTEXT_HPP
