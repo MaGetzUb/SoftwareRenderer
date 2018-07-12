@@ -83,6 +83,8 @@ class Edge {
 		}
 
 		inline float x() const { return mX; }
+
+		inline float xStep() const { return mXStep; }
 		
 		inline int yStart() const { return mYStart; }
 		
