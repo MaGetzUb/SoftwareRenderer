@@ -114,9 +114,9 @@ class RenderContext {
 		*/
 		void setViewTransform(const mat4& view) { mViewTrasform = view; }
 
-		void drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture);
+		void drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture, const mat4& normalMatrix = mat4::Identity());
 
-		void drawMesh(const Mesh& mesh, const mat4& transform);
+		void drawMesh(const Mesh& mesh, const mat4& transform, const mat4& normalMatrix = mat4::Identity());
 
 		inline void setTexture(const Texture& texture) { mTexture = &texture; }
 		

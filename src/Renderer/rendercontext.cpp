@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture) {
+void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture, const mat4& normalMatrix) {
 	mTexture = &texture;
 
 	for(auto& face: mesh.triangles()) {
@@ -39,26 +39,27 @@ void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Text
 		a = mesh.vertices()[face[0]];
 		b = mesh.vertices()[face[1]];
 		c = mesh.vertices()[face[2]];
-		a.transform(transform);
-		b.transform(transform);
-		c.transform(transform);
+		a.transform(transform, normalMatrix);
+		b.transform(transform, normalMatrix);
+		c.transform(transform, normalMatrix);
 
 		fillTriangle(a, b, c);
 	}
 
 }
 
-void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform) {
+void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const mat4& normalMatrix) {
 	mTexture = nullptr;
+
 
 	for(auto& face : mesh.triangles()) {
 		Vertex a, b, c;
 		a = mesh.vertices()[face[0]];
 		b = mesh.vertices()[face[1]];
 		c = mesh.vertices()[face[2]];
-		a.transform(transform);
-		b.transform(transform);
-		c.transform(transform);
+		a.transform(transform, normalMatrix);
+		b.transform(transform, normalMatrix);
+		c.transform(transform, normalMatrix);
 
 		fillTriangle(a, b, c);
 	}

@@ -214,9 +214,10 @@ int main()
 
 		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * deltaTime;
 
-		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f)  * mat4::Rotation(QMod(suzanneAngle, 360.0f), 0.f, 1.f, 0.f);
+		mat4 suzanneRotation = mat4::Rotation(QMod(suzanneAngle, 360.0f), 0.f, 1.f, 0.f);
+		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f)  * suzanneRotation;
 		mat = viewProjection * model;
-		rc.drawMesh(mesh1, mat, texture1);
+		rc.drawMesh(mesh1, mat, texture1, suzanneRotation);
 
 		suzanneAngle += deltaTime*20.f;
 
