@@ -63,11 +63,16 @@ class RenderContext {
 	int mMipLevel = 0;
 	*/
 	int mDrawnTriangles = 0;
+	int mCheckerBoard = 0;
+
 
 	public: 
 	
-		inline void clearDepthBuffer() {
+		void reset() {
 			mDrawnTriangles = 0;
+		}
+
+		inline void clearDepthBuffer() {
 			__m128 fill = _mm_set_ps1(1.0f);
 			for(int i = 0; i < mWidth*mHeight; i += 4) {
 				_mm_store_ps((float*)mDepthBuffer + i, fill);
@@ -130,6 +135,9 @@ class RenderContext {
 
 		void fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
 
+		void advanceCheckerboard() { mCheckerBoard = (mCheckerBoard+1)&1; }
+
+		int checkerBoard() const { return mCheckerBoard; }
 
 		inline void enableLighting(bool lighting) { mEnableLighting = lighting; }
 

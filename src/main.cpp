@@ -194,9 +194,14 @@ int main()
 
 	while(!window.isClosed()) {
 		window.pollEvents();
-		rc.clearDepthBuffer();
-		canvas.clear(vec4{.2f, .1f, .6f, 1.f} * 0.3f);
 
+
+		rc.reset();
+		canvas.clearCheckerboard(rc.checkerBoard(), rc.ambientColor()*rc.ambientIntensity());
+
+		if(!rc.checkerBoard()) {
+			rc.clearDepthBuffer();
+		}
 		#if TEST == STARFIELD 
 		starfield.updateAndDraw(deltaTime);
 		#endif 
@@ -272,7 +277,7 @@ int main()
 		std::cout << inputs.mouseX() << ", " << inputs.mouseY() << '\r';
 		#endif 
 		canvas.swapBuffers();
-
+		rc.advanceCheckerboard();
 
 
 		#ifdef TEXT_INPUT_TEST

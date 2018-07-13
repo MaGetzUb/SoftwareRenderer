@@ -57,6 +57,8 @@ class Canvas {
 
 		void clear(const vec4& color);
 
+		void clearCheckerboard(int index, const vec4& color);
+
 		int width() const { return mWidth; }
 		int height() const { return mHeight; }
 		int pitch() const { return mPitch; }

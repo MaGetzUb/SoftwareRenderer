@@ -63,6 +63,7 @@ void Canvas::swapBuffers() const {
 	StretchDIBits(mWindow->dc(), 0, 0, mWindow->width(), mWindow->height(), 0, 0, mWidth, mHeight, mBufferMemory, &mBufferInfo, DIB_RGB_COLORS, SRCCOPY);
 }
 
+#ifdef USE_SIMD
 void Canvas::clear(unsigned int color) {
 	__m128i pixel = _mm_set1_epi32(color);
 	const int pixels = mWidth * mHeight;
@@ -78,5 +79,35 @@ void Canvas::clear(const vec4& color) {
 		_mm_store_si128((__m128i*)(mBufferMemory + i * 4), pixel);
 	}
 }
+void Canvas::clearCheckerboard(int index, const vec4 & color) {
+	int pix = Vec4ToPixel(color);
+	int* pixBuf = (int*)mBufferMemory;
+	const int pixels = mWidth * mHeight;
+	
+	for(int i = 0; i < pixels; i += 4) {
+		int cy = (i/mWidth)&1;
+		int st = !(cy^index);
+		pixBuf[i + st] = pix;
+		pixBuf[i + 2 + st] = pix;
+	}
+}
+#else 
 
+void Canvas::clear(unsigned int color) {
+	__m128i pixel = _mm_set1_epi32(color);
+	const int pixels = mWidth * mHeight;
+	for(int i = 0; i < pixels; i += 4) {
+		_mm_store_si128((__m128i*)(mBufferMemory + i * 4), pixel);
+	}
+}
+
+void Canvas::clear(const vec4& color) {
+	__m128i pixel = _mm_set1_epi32(Vec4ToPixel(color));
+	const int pixels = mWidth * mHeight;
+	for(int i = 0; i < pixels; i += 4) {
+		_mm_store_si128((__m128i*)(mBufferMemory + i * 4), pixel);
+	}
+}
+
+#endif 
 
