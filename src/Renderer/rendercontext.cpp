@@ -191,7 +191,7 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
 			vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
-			float zd = (1.0f - (depth / z)) - 0.15f;
+			float zd = (1.0f - (depth * zDivisor)) - 0.15f;
 			int mipLevel = (int)(std::min(1.f, std::max(0.f, zd*zd)) * mipLevels);
 			mCanvas->set(x, y, mTexture->sample(texCoord * z, mipLevel, Texture::Sampling::Linear) * (color * z) * sun);
 			db = depth;

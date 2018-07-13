@@ -30,11 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "System/timer.hpp"
 #include <string>
 #include <iostream>
+#include <regex> //MEH
 
 #include "Renderer/rendercontext.hpp"
 #include "Renderer/mesh.hpp"
 #include "starfield.hpp"
 #include "Math/quat.hpp"
+
 
 #define NONE 0
 #define STARFIELD 1
@@ -61,6 +63,7 @@ int main()
 	settings.open("settings.ini", std::ios::in);
 	if(!settings.is_open()) {
 		settings.open("settings.ini", std::ios::out);
+		settings << "Modify these values at your own risk." << std::endl;
 		settings << "ScreenWidth=" << screenWidth << std::endl;
 		settings << "ScreenHeight=" << screenHeight << std::endl;
 		settings << "CanvasWidth=" << canvasWidth << std::endl;
@@ -68,21 +71,30 @@ int main()
 		settings.close();
 	} else {
 		std::string line;
-		std::getline(settings, line);
-		std::stringstream stream(line);
-		std::string var;
-		stream >> var; if(var == "ScreenWidth=") stream >> screenWidth;
-		stream >> var; if(var == "ScreenHeight") stream >> screenHeight;
-		stream >> var; if(var == "CanvasWidth") stream >> canvasWidth;
-		stream >> var; if(var == "CanvasHeight") stream >> canvasHeight;
+		std::string var, value;
+		std::regex match("(\\w+)\\s*=(\\d+)\\s*");
+
+		while(std::getline(settings, line)) {
+			std::smatch subMatches;
+			if(std::regex_match(line, subMatches, match)) {
+				if(subMatches.size() == 3) {
+					var = subMatches[1].str();
+					value = subMatches[2].str();
+				}
+			}
+			if(var == "ScreenWidth") screenWidth = stoi(value);
+			if(var == "ScreenHeight") screenHeight = stoi(value);
+			if(var == "CanvasWidth") canvasWidth = stoi(value);
+			if(var == "CanvasHeight") canvasHeight = stoi(value);
+		}
 		settings.close();
 	}
 
 
 	Window window;
-	window.initialize(640, 480, "Software Renderer");
+	window.initialize(screenWidth, screenHeight, "Software Renderer");
 	Canvas canvas(window);
-	canvas.resize(640, 480);
+	canvas.resize(canvasWidth, canvasHeight);
 
 	float aRatio = 4.0f / 3.0f;
 
