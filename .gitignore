@@ -7,3 +7,4 @@ premake/premake5.exe
 *.vcxproj.filters
 *.user 
 *.xcf
+settings.ini

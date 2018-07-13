@@ -54,6 +54,31 @@ int main()
 #endif 
 {
 
+	int screenWidth = 640, screenHeight = 480;
+	int canvasWidth = 640, canvasHeight = 480;
+
+	std::fstream settings;
+	settings.open("settings.ini", std::ios::in);
+	if(!settings.is_open()) {
+		settings.open("settings.ini", std::ios::out);
+		settings << "ScreenWidth=" << screenWidth << std::endl;
+		settings << "ScreenHeight=" << screenHeight << std::endl;
+		settings << "CanvasWidth=" << canvasWidth << std::endl;
+		settings << "CanvasHeight=" << canvasHeight << std::endl;
+		settings.close();
+	} else {
+		std::string line;
+		std::getline(settings, line);
+		std::stringstream stream(line);
+		std::string var;
+		stream >> var; if(var == "ScreenWidth=") stream >> screenWidth;
+		stream >> var; if(var == "ScreenHeight") stream >> screenHeight;
+		stream >> var; if(var == "CanvasWidth") stream >> canvasWidth;
+		stream >> var; if(var == "CanvasHeight") stream >> canvasHeight;
+		settings.close();
+	}
+
+
 	Window window;
 	window.initialize(640, 480, "Software Renderer");
 	Canvas canvas(window);

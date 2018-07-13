@@ -344,6 +344,23 @@ static mat4 operator*(const mat4& a, const mat4& b) {
 	return out;
 }
 
+static mat4 IsolateRotationAndScale(const mat4& mat) {
+	mat4 out = mat;
+	__m128 mul, row;
+	mul = _mm_set_ps(1.f, 1.f, 1.f, 0.f);
+
+	row = _mm_mul_ps(_mm_load_ps(&mat[0][0]), mul);
+	_mm_store_ps(&out[0][0], row);
+	row = _mm_mul_ps(_mm_load_ps(&mat[0][1]), mul);
+	_mm_store_ps(&out[0][1], row);
+	row = _mm_mul_ps(_mm_load_ps(&mat[0][2]), mul);
+	_mm_store_ps(&out[0][2], row);
+	row = _mm_mul_ps(_mm_load_ps(&mat[0][3]), mul);
+	_mm_store_ps(&out[0][3], row);
+
+	return out;
+}
+
 
 //Based on https://github.com/niswegmann/small-matrix-inverse/blob/master/invert4x4_sse.h
 template<>
