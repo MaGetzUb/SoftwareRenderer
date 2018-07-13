@@ -51,7 +51,8 @@ bool Mesh::load(const std::string & path) {
 		} else if(cmd == "vn") {
 			lineStream >> x >> y >> z;
 			normals.push_back({ x, y, z });
-		} else if(cmd == "f") {
+		}
+		else if(cmd == "f") {
 			//We have to basically duplicate
 			//vertices for many faces, especially
 			//when texture coordinates are utilized
@@ -72,15 +73,15 @@ bool Mesh::load(const std::string & path) {
 				peekChar = lineStream.peek();
 				if(peekChar >= '0' && peekChar <= '9' || peekChar == '.') {
 					switch(phase) {
-						case 0:
-							lineStream >> vids[vertsPerFace];
-						break;
-						case 1:
-							lineStream >> vtids[vertsPerFace];
-						break;
-						case 2:
-							lineStream >> vnids[vertsPerFace];
-						break;
+					case 0:
+					lineStream >> vids[vertsPerFace];
+					break;
+					case 1:
+					lineStream >> vtids[vertsPerFace];
+					break;
+					case 2:
+					lineStream >> vnids[vertsPerFace];
+					break;
 					}
 				}
 				if(peekChar == '/') { lineStream >> crap; phase++; }
@@ -88,44 +89,41 @@ bool Mesh::load(const std::string & path) {
 			} while(peekChar != EOF);
 
 
-			for(int i = 0; i < 3; i++) {
+			for(int i = 0; i < vertsPerFace + 1; i++) {
 				vids[i]--;
 				if(texCoords.size()) vtids[i]--;
 				if(normals.size()) vnids[i]--;
 			}
-			
+
 			//FIXME: ASDFG
 
 			//A side note; this process can be probably be optimized with hashmap.
-			for(int i = 0; i < vertsPerFace-1; i+=2) {
+			for(int i = 0; i < vertsPerFace+1; i++) {
 
-				for(int j = 0; j < 3; j++) {
-					auto vId = std::find_if(mVertices.begin(), mVertices.end(), 
-						[&](const Vertex& v) -> bool { //Lambda for finding certain vertex, if it doesn't found *
-							return v.position().xyz() == positions[vids[i+j]] && 
-							   (v.texCoord() == texCoords[vtids[i+j]] || texCoords.empty()) && 
-							   (v.normal() == normals[vnids[i+j]] || normals.empty());
-						}
-					);
-
-					if(vId == mVertices.end()) {
-						vec4 pos = vec4(positions[vids[i+j]]); 
-						faceIndices[i+j] = mVertices.size();     
-						mVertices.push_back(Vertex(pos)); // * add it to the vertex list **
-						mVertices.back().setTexCoord(texCoords[vtids[i+j]]);
-						mVertices.back().setNormal(normals[vnids[i+j]]);
-					} else {
-						faceIndices[i+j] = vId - mVertices.begin(); //** else, just calculate index and add it to face indices. 
+				auto vId = std::find_if(mVertices.begin(), mVertices.end(),
+										[&](const Vertex& v) -> bool { //Lambda for finding certain vertex, if it doesn't found *
+					return v.position().xyz() == positions[vids[i]] &&
+						(!texCoords.empty() ? v.texCoord() == texCoords[vtids[i]] : true) &&
+						(!normals.empty() ? v.normal() == normals[vnids[i]] : true);
 					}
+				);
+				if(vId == mVertices.end()) {
+					vec4 pos = vec4(positions[vids[i]]);
+					faceIndices[i] = mVertices.size();
+					mVertices.push_back(Vertex(pos)); // * add it to the vertex list **
+					if(texCoords.size()) mVertices.back().setTexCoord(texCoords[vtids[i]]);
+					if(normals.size()) mVertices.back().setNormal(normals[vnids[i]]);
+				} else {
+					faceIndices[i] = vId - mVertices.begin(); //** else, just calculate index and add it to face indices. 
 				}
-				//Now we should have all face indices for single face. Hooray.
-				mTriangles.push_back({ faceIndices[0], faceIndices[i + 1], faceIndices[i + 2] }); //Da triangulation	
+
 			}
 
+			for(int k = 0; k < vertsPerFace-1; k++) {
+				mTriangles.emplace_back(uvec3{ faceIndices[0], faceIndices[k + 1], faceIndices[k + 2] });
+			}
 
-	
 		}
-
 	}
 	return true;
 }
