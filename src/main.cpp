@@ -97,11 +97,11 @@ int main()
 	Mesh mesh1;
 	mesh1.load("res/suzanne.obj");
 
-
 	Mesh mesh2;
 	mesh2.load("res/terrain.obj");
 
-	rc.setTexture(texture1);
+	Mesh mesh3;
+	mesh3.load("res/cube.obj");
 
 	#endif 
 
@@ -207,14 +207,15 @@ int main()
 
 		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f);
 		mat = viewProjection * model;
-
-
 		rc.drawMesh(mesh1, mat, texture1);
 
 		model = mat4::Translate(0.0f, -4.0f, 0.0f);
 		mat = viewProjection * model;
 		rc.drawMesh(mesh2, mat, texture2);
 
+		model = mat4::Translate(0.0f, -2.0f, -2.0f);
+		mat = viewProjection * model;
+		rc.drawMesh(mesh3, mat);
 		#endif 
 
 
