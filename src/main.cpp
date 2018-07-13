@@ -144,6 +144,8 @@ int main()
 	float cameraPitch = 0.0f;
 	vec3 cameraPosition;
 
+	float suzanneAngle = 0.f;
+
 	rc.enableLighting(true);
 	rc.setAmbientColor({0.2f, 0.1f, 0.6f});
 	rc.setAmbientIntensity(0.3f);
@@ -187,27 +189,36 @@ int main()
 			SetCursorPos(centerX, centerY);
 		}
 
-		//cameraPitch += (float)(inputs.isKeyDown(VK_LEFT) - inputs.isKeyDown(VK_RIGHT)) * 100.f * deltaTime / 1000.0f;
-		//cameraYaw += (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * 100.f * deltaTime / 1000.0f;
+
 		mat4 rotation = mat4::Rotation(cameraYaw, 1.0f, 0.0f, 0.0f)*mat4::Rotation(cameraPitch, 0.0f, 1.0f, 0.0f);
 
 		vec3 dir = rotation.transposed() * vec3(0.f, 0.f, 1.f);
-		vec3 right = dir.rotated(90.f, { 0.f, 1.f, 0.f });
+		vec3 right = cross(dir, vec3(0.f, 1.f, 0.f));
+		right = reorthogonalize(right, dir);
+
 		if(inputs.isKeyDown('W')) cameraPosition += dir*5.f * deltaTime;
 		if(inputs.isKeyDown('S')) cameraPosition -= dir*5.f * deltaTime;
 		if(inputs.isKeyDown('D')) cameraPosition += right*5.f * deltaTime;
-		if(inputs.isKeyDown('A')) cameraPosition -= -right*5.f * deltaTime;
+		if(inputs.isKeyDown('A')) cameraPosition -= right*5.f * deltaTime;
 
+		/*
+		if(inputs.isKeyHit(VK_SPACE)) {
+			rc.testMipmap(!rc.isMipMapTesting());
+		}
 
-
+		if(rc.isMipMapTesting()) {
+			rc.setMipMapLevel(rc.mipMapLevel() + (inputs.isKeyHit(VK_UP) - inputs.isKeyHit(VK_DOWN)));
+		}*/
 
 		mat4 viewProjection = mat4::Perspective(aRatio, 90.0f, .01f, 100.f) * rotation * mat4::Translate(cameraPosition);
 
 		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * deltaTime;
 
-		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f);
+		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f)  * mat4::Rotation(QMod(suzanneAngle, 360.0f), 0.f, 1.f, 0.f);
 		mat = viewProjection * model;
 		rc.drawMesh(mesh1, mat, texture1);
+
+		suzanneAngle += deltaTime*20.f;
 
 		model = mat4::Translate(0.0f, -4.0f, 0.0f);
 		mat = viewProjection * model;
@@ -245,6 +256,14 @@ int main()
 		
 		auto tp = Timer();
 		deltaTime = (double)(tp - prevtime) / 1000.0;
+
+
+		//Cap the FPS, so movement won't become too slow. 
+		if(deltaTime < (1.0 / 120.0)) {
+			Sleep((int)1000.0*(1.0 / 120.0));
+		}
+
+		//Calculate FPS
 		prevtime = tp;
 		frames++;
 		fpsTime += (double)deltaTime;
@@ -254,7 +273,7 @@ int main()
 			fpsTime = 0;
 		}
 
-		window.setTitle("Software Rendering | FPS: " + std::to_string(fps));
+		window.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
 
 
 		inputs.update();
