@@ -48,6 +48,23 @@ void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Text
 
 }
 
+void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform) {
+	mTexture = nullptr;
+
+	for(auto& face : mesh.triangles()) {
+		Vertex a, b, c;
+		a = mesh.vertices()[face[0]];
+		b = mesh.vertices()[face[1]];
+		c = mesh.vertices()[face[2]];
+		a.transform(transform);
+		b.transform(transform);
+		c.transform(transform);
+
+		fillTriangle(a, b, c);
+	}
+
+}
+
 void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex& c) {
 
 	auto clipTriangle = [](const Vertex& a, const Vertex& b, const Vertex& c, std::vector<Vertex>& output) -> bool {
@@ -116,6 +133,7 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 
 		scanTriangle(*minYV, *midYV, *maxYV, handedness);
 
+		mDrawnTriangles++;
 
 	};
 
@@ -155,26 +173,31 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 	float zDivisor = a->zDivisor() + gradients.zDivisorXStep() * offset;
 
 	vec4 color = a->color() + gradients.colorXStep() * offset;
-	vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
+	//vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
 	vec3 normal = a->normal() + gradients.normalXStep() * offset;
-	
+
+
+	float xDist = b->x() - a->x();
+	vec2 texCoordStep = (b->texCoord() - a->texCoord()) / xDist;
+	vec2 texCoord = a->texCoord() + texCoordStep * offset;
+
 	vec3 sunPos = vec3(mSunPosition).normalized();
+	float mipLevels = (float)mTexture->mipLevels();
 
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
 		float z = 1.0f / zDivisor;
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
-
-
 			vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
-
-			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
-			mCanvas->set(x, y, mTexture->sample(texCoord * z, 2, Texture::Sampling::Linear) * (color * z) * sun);
+			float zd = (1.0f - (depth / z)) - 0.15f;
+			int mipLevel = (int)(std::min(1.f, std::max(0.f, zd*zd)) * mipLevels);
+			mCanvas->set(x, y, mTexture->sample(texCoord * z, mipLevel, Texture::Sampling::Linear) * (color * z) * sun);
 			db = depth;
 		}
+
 		color += gradients.colorXStep();
-		texCoord += gradients.texCoordXStep();
+		texCoord += texCoordStep;
 		zDivisor += gradients.zDivisorXStep();
 		depth += gradients.depthXStep();
 		normal += gradients.normalXStep();
@@ -189,20 +212,18 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 	float depth = a->depth() + gradients.depthXStep() * offset;
 	float zDivisor = a->zDivisor() + gradients.zDivisorXStep() * offset;
 
+
+
 	vec4 color = a->color() + gradients.colorXStep() * offset;
 	vec3 normal = a->normal() + gradients.normalXStep() * offset;
 
 	vec3 sunPos = vec3(mSunPosition).normalized();
 
 	for(int x = xMin; x < xMax; x++) {
-		//mCanvas->set(x, y, color);
 		float z = 1.0f / zDivisor;
 		float& db = mDepthBuffer[x + y * mWidth];
 		if(depth < db) {
-
 			vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
-
-			//mCanvas->set(x, y, vec4(vec3(.5f)+normal*.5f, 1.0f));
 			mCanvas->set(x, y, (color * z) * sun);
 			db = depth;
 		}
@@ -229,9 +250,12 @@ void RenderContext::scanEdge(const Gradients& gradients, Edge* a, Edge* b, bool 
 			left->step();
 			right->step();
 		}
-	}
-	else {
-
+	} else {
+		for(int j = yStart; j < yEnd; j++) {
+			drawScanLine(gradients, left, right, j);
+			left->step();
+			right->step();
+		}
 	}
 }
 

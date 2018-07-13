@@ -58,11 +58,16 @@ class RenderContext {
 	vec4 mAmbientColor = { 1.f, 1.f, 1.f, 1.f };
 	float mAmbientIntensity = .2f ;
 
-
+	/*	
+	bool mTestMipMap = false;
+	int mMipLevel = 0;
+	*/
+	int mDrawnTriangles = 0;
 
 	public: 
 	
 		inline void clearDepthBuffer() {
+			mDrawnTriangles = 0;
 			__m128 fill = _mm_set_ps1(1.0f);
 			for(int i = 0; i < mWidth*mHeight; i += 4) {
 				_mm_store_ps((float*)mDepthBuffer + i, fill);
@@ -90,12 +95,28 @@ class RenderContext {
 			size += (size % 16);
 			mDepthBuffer = (float*)_aligned_realloc(mDepthBuffer, size, 16);
 		}
+		/*
+		void testMipmap(bool test) {
+			mTestMipMap = test;
+		}
 
+		void setMipMapLevel(int level) {
+			mMipLevel = std::min(20, std::max(0, level));
+		}
 
+		int mipMapLevel() const {
+			return mMipLevel;
+		}
+
+		bool isMipMapTesting() const {
+			return mTestMipMap;
+		}
+		*/
 		void setViewTransform(const mat4& view) { mViewTrasform = view; }
 
 		void drawMesh(const Mesh& mesh, const mat4& transform, const Texture& texture);
 
+		void drawMesh(const Mesh& mesh, const mat4& transform);
 
 		inline void setTexture(const Texture& texture) { mTexture = &texture; }
 		
@@ -122,6 +143,7 @@ class RenderContext {
 
 		inline void setAmbientIntensity(float intensity) { mAmbientIntensity = intensity; }
 
+		inline int renderedTriangles() const { return mDrawnTriangles;  }
 
 		inline bool isLighting() const { return mEnableLighting; }
 
