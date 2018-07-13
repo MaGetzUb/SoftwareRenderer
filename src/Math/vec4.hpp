@@ -366,6 +366,28 @@ inline vec4 PixelToVec4(int pixelColor) {
 	return *(vec4*)&x;
 }
 
+#else 
+
+inline int Vec4ToPixel(const vec4& color) {
+	int out;
+	byte* ptr = (byte*)&out;
+	*out++ = (byte)(color.r * 255.f);
+	*out++ = (byte)(color.g * 255.f);
+	*out++ = (byte)(color.b * 255.f);
+	*out++ = (byte)(color.a * 255.f);
+	return out;
+}
+
+inline vec4 PixelToVec4(int pixel) {
+	vec4 out;
+	byte* ptr = (byte*)&pixel;
+	out.r = (float)(*ptr++);
+	out.g = (float)(*ptr++);
+	out.b = (float)(*ptr++);
+	out.a = (float)(*ptr++);
+	out /= 255.f;
+	return out;
+}
 
 #endif
 
