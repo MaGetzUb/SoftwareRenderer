@@ -45,7 +45,7 @@ inline T Fract(T v) {
 template <class T>
 inline T QMod(T a, T b) {
 	a /= b;
-	return (a - floor(a)) * (b - (T)1);
+	return (a - floor(a)) * b;
 }
 
 template<class T>
