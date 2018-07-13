@@ -54,36 +54,42 @@ bool Texture::load(const std::string& path) {
 	mTextureOffset.x = (middle / (unsigned)mSize.x) * (unsigned)mSize.x;
 	mTextureOffset.y = (middle / (unsigned)mSize.y) * (unsigned)mSize.y;
 
+	mMipLevelsPerAxis.x = (int)log2(mSize.x);
+	mMipLevelsPerAxis.y = (int)log2(mSize.y);
+	mMipLevels = std::max(mMipLevelsPerAxis.x, mMipLevelsPerAxis.y);
+
 	stbi_image_free(pixels);
 	return true;
 }
 
 vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping wraping) const {
 	
-	x *= mSize.x;
-	y *= mSize.y;
+	x *= (mSize.x-1);
+	y *= (mSize.y-1);
 
-	x /= mipLevel;
-	y /= mipLevel;
+	int mipX = mSize.x / ((1<<(mMipLevelsPerAxis.x)) >> mipLevel);
+	int mipY = mSize.y / ((1<<(mMipLevelsPerAxis.y)) >> mipLevel);
 
 	switch(sampling) {
-		case Sampling::None: return sample((int)x, (int)y); break;
+		case Sampling::None: return sample(((int)x / mipX)*mipX, ((int)y / mipY)*mipY); break;
 		case Sampling::Linear: 
 		case Sampling::CubicHermite:
 		{
-			float fracX = x - floor(x);
-			float fracY = y - floor(y); 
+			float fracX = (x / mipX) - floor(x / mipX);
+			float fracY = (y / mipY) - floor(y / mipY);
 
 			if(sampling == Sampling::CubicHermite) {
 				fracX = fracX * fracX * (3.f - 2.f*fracX);
 				fracY = fracY * fracY * (3.f - 2.f*fracX);
 			}
 
+			int sx = ((int)x / mipX) * mipX;
+			int sy = ((int)y / mipY) * mipY;
 
-			vec4 a = sample((int)x, (int)y);
-			vec4 b = sample((int)x + 1, (int)y);
-			vec4 c = sample((int)x, (int)y + 1);
-			vec4 d = sample((int)x + 1, (int)y + 1);
+			vec4 a = sample(sx, sy);
+			vec4 b = sample(sx + mipX, sy);
+			vec4 c = sample(sx, sy + mipY);
+			vec4 d = sample(sx + mipX, sy + mipY);
 			
 			return a + fracX * (b - a) + fracY * (c - a) * (1.0f - fracX) + fracX * fracY * (d - b);
 		}

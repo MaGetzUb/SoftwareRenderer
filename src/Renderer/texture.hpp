@@ -38,6 +38,9 @@ class Texture {
 	
 	uvec2 mTextureOffset; //We need this for repeat wrap mode, because of modulo operator
 
+	ivec2 mMipLevelsPerAxis;
+	int mMipLevels;
+
 	public:
 		
 		enum class Sampling {
@@ -70,6 +73,8 @@ class Texture {
 			std::swap(mSize, b.mSize);
 			return *this;
 		}
+
+		int mipLevels() const { return mMipLevels; }
 
 
 		bool load(const std::string& path);
