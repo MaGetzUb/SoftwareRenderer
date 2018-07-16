@@ -51,8 +51,7 @@ bool Mesh::load(const std::string & path) {
 		} else if(cmd == "vn") {
 			lineStream >> x >> y >> z;
 			normals.push_back({ x, y, z });
-		}
-		else if(cmd == "f") {
+		} else if(cmd == "f") {
 			//We have to basically duplicate
 			//vertices for many faces, especially
 			//when texture coordinates are utilized
@@ -61,60 +60,59 @@ bool Mesh::load(const std::string & path) {
 			unsigned faceIndices[256]{};
 			char crap;
 
-
-			//lineStream >> vids[0] >> crap >> vtids[0] >> crap >> vnids[0] >>
-			//			  vids[1] >> crap >> vtids[1] >> crap >> vnids[1] >>
-			//			  vids[2] >> crap >> vtids[2] >> crap >> vnids[2];
-
 			int phase = 0;
 			int vertsPerFace = 0;
 			char peekChar;
 			do {
+
 				peekChar = lineStream.peek();
-				if(peekChar >= '0' && peekChar <= '9' || peekChar == '.') {
+				if((peekChar >= '0' && peekChar <= '9') || peekChar == '.') {
 					switch(phase) {
-					case 0:
-					lineStream >> vids[vertsPerFace];
-					break;
-					case 1:
-					lineStream >> vtids[vertsPerFace];
-					break;
-					case 2:
-					lineStream >> vnids[vertsPerFace];
-					break;
+						case 0: lineStream >> vids[vertsPerFace]; break;
+						case 1: lineStream >> vtids[vertsPerFace]; break;
+						case 2: lineStream >> vnids[vertsPerFace]; break;
 					}
 				}
+
 				if(peekChar == '/') { lineStream >> crap; phase++; }
 				if(peekChar == ' ') { lineStream.ignore(); if((phase % 3) == 2) vertsPerFace++; phase = 0; continue; }
+
 			} while(peekChar != EOF);
 
 
 			for(int i = 0; i < vertsPerFace + 1; i++) {
+
 				vids[i]--;
 				if(texCoords.size()) vtids[i]--;
 				if(normals.size()) vnids[i]--;
-			}
 
-			//FIXME: ASDFG
+			}
 
 			//A side note; this process can be probably be optimized with hashmap.
 			for(int i = 0; i < vertsPerFace+1; i++) {
 
 				auto vId = std::find_if(mVertices.begin(), mVertices.end(),
-										[&](const Vertex& v) -> bool { //Lambda for finding certain vertex, if it doesn't found *
-					return v.position().xyz() == positions[vids[i]] &&
-						(!texCoords.empty() ? v.texCoord() == texCoords[vtids[i]] : true) &&
-						(!normals.empty() ? v.normal() == normals[vnids[i]] : true);
+					[&](const Vertex& v) -> bool { //Lambda for finding certain vertex, if it doesn't found *
+
+						return v.position().xyz() == positions[vids[i]] &&
+							(!texCoords.empty() ? v.texCoord() == texCoords[vtids[i]] : true) &&
+							(!normals.empty() ? v.normal() == normals[vnids[i]] : true);
+
 					}
 				);
+
 				if(vId == mVertices.end()) {
+
 					vec4 pos = vec4(positions[vids[i]]);
 					faceIndices[i] = mVertices.size();
 					mVertices.push_back(Vertex(pos)); // * add it to the vertex list **
 					if(texCoords.size()) mVertices.back().setTexCoord(texCoords[vtids[i]]);
 					if(normals.size()) mVertices.back().setNormal(normals[vnids[i]]);
+
 				} else {
+
 					faceIndices[i] = vId - mVertices.begin(); //** else, just calculate index and add it to face indices. 
+				
 				}
 
 			}
