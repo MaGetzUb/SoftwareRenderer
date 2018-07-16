@@ -101,6 +101,19 @@ class Texture {
 		vec4 sample(float x, float y, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const;
 
 		inline vec4 sample(const vec2& vec, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const { return sample(vec.x, vec.y, mipLevel, sampling, wraping); }
+
+		inline vec4 sample(float x, float y, float mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const {
+			float current = floor(mipLevel);
+			float next = std::min(current + 1.f, (float)mMipLevels);
+			float frac = mipLevel - current;
+			return sample(x, y, (int)current, sampling, wraping) * (1.f - frac) +
+					sample(x, y, (int)next, sampling, wraping) * frac;
+		}
+
+		inline vec4 sample(const vec2& vec, float mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const {
+			return sample(vec.x, vec.y, mipLevel, sampling, wraping);
+		}
+
 };
 
 
