@@ -58,6 +58,9 @@ class RenderContext {
 	vec4 mAmbientColor = { 1.f, 1.f, 1.f, 1.f };
 	float mAmbientIntensity = .2f ;
 
+	Texture::Sampling mSamplingMode;
+	Texture::Wraping mWrapingMode;
+
 	/*	
 	bool mTestMipMap = false;
 	int mMipLevel = 0;
@@ -100,6 +103,11 @@ class RenderContext {
 			size += (size % 16);
 			mDepthBuffer = (float*)_aligned_realloc(mDepthBuffer, size, 16);
 		}
+
+		inline void setSamplingMode(Texture::Sampling sampling) { mSamplingMode = sampling; }
+
+		inline void setTextureWrapingMode(Texture::Wraping wrapingMode) { mWrapingMode = wrapingMode; }
+
 		/*
 		void testMipmap(bool test) {
 			mTestMipMap = test;

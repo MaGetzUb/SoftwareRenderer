@@ -51,7 +51,6 @@ void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const Text
 void RenderContext::drawMesh(const Mesh& mesh, const mat4& transform, const mat4& normalMatrix) {
 	mTexture = nullptr;
 
-
 	for(auto& face : mesh.triangles()) {
 		Vertex a, b, c;
 		a = mesh.vertices()[face[0]];
@@ -99,7 +98,7 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 					prevCmpVal = currCmpVal;
 					prevInside = currInside;
 
-				 }
+				}
 				ping->clear();
 				if(pong->empty()) return false;
 				std::swap(ping, pong);
@@ -115,8 +114,6 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 		Vertex tra = a;
 		Vertex trb = b;
 		Vertex trc = c;
-		
-
 
 		tra.transform(mScreenSpaceTransform).perspectiveDivide();
 		trb.transform(mScreenSpaceTransform).perspectiveDivide();
@@ -143,7 +140,7 @@ void RenderContext::fillTriangle(const Vertex& a, const Vertex& b, const Vertex&
 		return;
 	}
 
-	std::vector<Vertex> vertices{ a, b, c };
+	std::vector<Vertex> vertices{};
 
 	if(clipTriangle(a, b, c, vertices)) {
 		for(int i = 1; i < (int)vertices.size()-1; i++) {
@@ -183,7 +180,7 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 	vec2 texCoord = a->texCoord() + texCoordStep * offset;
 
 	vec3 sunPos = vec3(mSunPosition).normalized();
-	float mipLevels = (float)mTexture->mipLevels();
+	float mipLevels = (float)mTexture->mipLevels()-1.f;
 
 	for(int x = xMin; x < xMax; x++) {
 		//mCanvas->set(x, y, color);
@@ -193,12 +190,13 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 			float& db = mDepthBuffer[x + y * mWidth];
 			if(depth < db) {
 				vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
-				float zd = (1.0f - (depth * zDivisor)) - 0.15f;
-				float mipLevel = (std::min(1.f, std::max(0.f, zd*zd)) * mipLevels);
-				mCanvas->set(x, y, mTexture->sample(texCoord * z, mipLevel, Texture::Sampling::Linear) * (color * z) * sun);
+				float zd = (1.0f - (depth / z));
+				float mipLevel = (std::min(1.f, std::max(0.f, zd*zd*zd)) * mipLevels);
+				mCanvas->set(x, y, mTexture->sample(texCoord * z, mipLevel, mSamplingMode, mWrapingMode) * (color * z) * sun);
 				db = depth;
 			}
 		}
+
 		color += gradients.colorXStep();
 		texCoord += texCoordStep;
 		zDivisor += gradients.zDivisorXStep();

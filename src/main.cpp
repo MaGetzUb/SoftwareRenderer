@@ -183,6 +183,9 @@ int main()
 
 	float suzanneAngle = 0.f;
 
+	rc.setSamplingMode(Texture::Sampling::CubicHermite);
+	rc.setTextureWrapingMode(Texture::Wraping::Clamp);
+
 	rc.enableLighting(true);
 	rc.setAmbientColor({0.2f, 0.1f, 0.6f});
 	rc.setAmbientIntensity(0.3f);
