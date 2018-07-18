@@ -66,7 +66,7 @@ bool Mesh::load(const std::string & path) {
 			do {
 
 				peekChar = lineStream.peek();
-				if((peekChar >= '0' && peekChar <= '9') || peekChar == '.') {
+				if((peekChar >= '0' && peekChar <= '9')) {
 					switch(phase) {
 						case 0: lineStream >> vids[vertsPerFace]; break;
 						case 1: lineStream >> vtids[vertsPerFace]; break;
@@ -75,7 +75,15 @@ bool Mesh::load(const std::string & path) {
 				}
 
 				if(peekChar == '/') { lineStream >> crap; phase++; }
-				if(peekChar == ' ') { lineStream.ignore(); if((phase % 3) == 2) vertsPerFace++; phase = 0; continue; }
+				
+				if(peekChar == ' ') { 
+
+					lineStream.ignore(); 
+					if((phase % 3) == 2) 
+						vertsPerFace++; 
+					phase = 0; 
+					continue; 
+				}
 
 			} while(peekChar != EOF);
 
