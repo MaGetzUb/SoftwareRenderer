@@ -2,6 +2,13 @@ This is a software renderer (windows only at the moment) implemented in C++,
 most of the triangle rasterization code is based on TheBennybox' software 
 rendering tutorial video series on youtube.
 
+The code isn't very well commented, but the renderer is capable of:
+  - Rendering models & clipping triangles
+  - Texturing
+  - Checkerboard rendering
+  - Linear mipmapping
+  - Linear texture sampling
+
 To set up the project, open bash, git bash for example run command:
 ./init.sh
 
