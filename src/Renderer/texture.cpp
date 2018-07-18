@@ -43,6 +43,7 @@ bool Texture::load(const std::string& path) {
 		return false; 
 	mPixels = new vec4[mSize.x * mSize.y];
 	stbi_uc* ptr = pixels;
+
 	for(int y = 0; y < mSize.y; y++)
 	for(int x = 0; x < mSize.x; x++)
 	{
@@ -71,16 +72,18 @@ vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping 
 	int mipY = mSize.y / ((1<<(mMipLevelsPerAxis.y)) >> mipLevel);
 
 	switch(sampling) {
-		case Sampling::None: return sample(((int)x / mipX)*mipX, ((int)y / mipY)*mipY); break;
+		case Sampling::None: 
+			return sample(((int)x / mipX)*mipX, ((int)y / mipY)*mipY); break;
 		case Sampling::Linear: 
 		case Sampling::CubicHermite:
 		{
+
 			float fracX = (x / mipX) - floor(x / mipX);
 			float fracY = (y / mipY) - floor(y / mipY);
 
 			if(sampling == Sampling::CubicHermite) {
-				fracX = fracX * fracX * (3.f - 2.f*fracX);
-				fracY = fracY * fracY * (3.f - 2.f*fracX);
+				fracX = (fracX * fracX * (3.f - 2.f*fracX));
+				fracY = (fracY * fracY * (3.f - 2.f*fracY));
 			}
 
 			int sx = ((int)x / mipX) * mipX;
@@ -92,6 +95,7 @@ vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping 
 			vec4 d = sample(sx + mipX, sy + mipY);
 			
 			return a + fracX * (b - a) + fracY * (c - a) * (1.0f - fracX) + fracX * fracY * (d - b);
+
 		}
 	
 	}

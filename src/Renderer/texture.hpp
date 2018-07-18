@@ -84,18 +84,20 @@ class Texture {
 		int height() const { return mSize.y; }
 
 		inline vec4 sample(int x, int y, Wraping wraping = Wraping::Repeat) const {
-
+			unsigned sx, sy;
 			switch(wraping) {
 				case Wraping::Repeat: {
-					x = (unsigned)(mTextureOffset.x + x) % (unsigned)mSize.x;
-					y = (unsigned)(mTextureOffset.y + y) % (unsigned)mSize.y;
+					sx = (mTextureOffset.x + x) % (unsigned)mSize.x;
+					sy = (mTextureOffset.y + y) % (unsigned)mSize.y;
 				} break;
 				case Wraping::Clamp:
-					x = Clamp(x, 0, mSize.x-1);
-					y = Clamp(y, 0, mSize.y-1);
+					sx = Clamp(x, 0, mSize.x-1);
+					sy = Clamp(y, 0, mSize.y-1);
 				break;
 			}
-			return mPixels[x + y * mSize.x]; 
+
+			return mPixels[sx + sy * mSize.x]; 
+		
 		}
 
 		vec4 sample(float x, float y, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const;
@@ -103,6 +105,7 @@ class Texture {
 		inline vec4 sample(const vec2& vec, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const { return sample(vec.x, vec.y, mipLevel, sampling, wraping); }
 
 		inline vec4 sample(float x, float y, float mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const {
+		
 			float current = floor(mipLevel);
 			float next = std::min(current + 1.f, (float)mMipLevels);
 			float frac = mipLevel - current;
