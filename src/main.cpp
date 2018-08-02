@@ -218,21 +218,24 @@ int main()
 		if(inputs.isMouseDown(0)) {
 			
 			RECT rct;
-			GetWindowRect(window.handle(), &rct);
-			
-			int centerX = rct.left + (rct.right - rct.left) / 2;
-			int centerY = rct.top + (rct.bottom - rct.top) / 2;
-			POINT p = { centerX, centerY };
-			ScreenToClient(window.handle(), &p);
+			GetClientRect(window.handle(), &rct);
 
-			float mx = p.x - inputs.mouseX();
-			float my = p.y - inputs.mouseY();
+			POINT p;
+			p.x = (rct.right - rct.left) / 2;
+			p.y = (rct.bottom - rct.top) / 2;
+			
+
+
+			float mx = (p.x - inputs.mouseX());
+			float my = (p.y - inputs.mouseY());
+
+			window.setTitle("Coords: "+std::to_string(mx)+", "+std::to_string(my));
 
 			cameraPitch += mx * deltaTime;
 			cameraYaw += my * deltaTime;
 
-			SetCursorPos(centerX, centerY);
-			inputs.ignoreMouseMoveEvents(window);
+			ClientToScreen(window.handle(), &p);
+			SetCursorPos(p.x, p.y);
 		}
 
 
@@ -328,7 +331,7 @@ int main()
 			fpsTime = 0;
 		}
 
-		window.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
+		//window.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
 
 
 		inputs.update();
