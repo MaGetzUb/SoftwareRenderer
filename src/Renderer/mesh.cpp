@@ -38,7 +38,7 @@ bool Mesh::load(const std::string & path) {
 	std::vector<vec2> texCoords; //and text coords first, before storing into member variables. 
 	std::vector<vec3> normals; //Same with the normals
 
-	std::map<std::tuple<unsigned, unsigned, unsigned>, unsigned> vertices;
+	std::map<std::tuple<unsigned, unsigned, unsigned>, unsigned> vertices; //Map each position index, texcoord index and normal index to unique vertex.
 
 	float x, y, z;
 	while(std::getline(file, line)) {
@@ -59,7 +59,7 @@ bool Mesh::load(const std::string & path) {
 			//vertices for many faces, especially
 			//when texture coordinates are utilized
 
-			int vids[256]{}, vtids[256]{}, vnids[256]{};
+			int vpids[256]{}, vtids[256]{}, vnids[256]{};
 			unsigned faceIndices[256]{};
 			char crap;
 
@@ -71,7 +71,7 @@ bool Mesh::load(const std::string & path) {
 				peekChar = lineStream.peek();
 				if((peekChar >= '0' && peekChar <= '9')) {
 					switch(phase) {
-						case 0: lineStream >> vids[vertsPerFace]; break;
+						case 0: lineStream >> vpids[vertsPerFace]; break;
 						case 1: lineStream >> vtids[vertsPerFace]; break;
 						case 2: lineStream >> vnids[vertsPerFace]; break;
 					}
@@ -93,30 +93,30 @@ bool Mesh::load(const std::string & path) {
 
 			for(int i = 0; i < vertsPerFace + 1; i++) {
 
-				vids[i]--;
+				vpids[i]--;
 				if(texCoords.size()) vtids[i]--;
 				if(normals.size()) vnids[i]--;
 
 			}
 
-			//A side note; this process can be probably be optimized with hashmap.
+
 			for(int i = 0; i < vertsPerFace+1; i++) {
 
-				auto vId = vertices.find({ vids[i], vtids[i], vnids[i] });
+				auto vId = vertices.find({ vpids[i], vtids[i], vnids[i] }); //Find a vertex with certain position, texcoord and normal index.
 
-				if(vId == vertices.end()) {
+				if(vId == vertices.end()) { //If nothing found, we need to add it to the actual vertices, and into the map
 
-					vec4 pos = vec4(positions[vids[i]]);
-					faceIndices[i] = mVertices.size();
+					vec4 pos = vec4(positions[vpids[i]]);
+					faceIndices[i] = mVertices.size(); //Get the next free index 
 					mVertices.push_back(Vertex(pos)); // * add it to the vertex list **
 					if(texCoords.size()) mVertices.back().setTexCoord(texCoords[vtids[i]]);
 					if(normals.size()) mVertices.back().setNormal(normals[vnids[i]]);
 
-					vertices[{vids[i], vtids[i], vnids[i]}] = faceIndices[i];
+					vertices[{vpids[i], vtids[i], vnids[i]}] = faceIndices[i]; //Add the vertex index into map
 
 				} else {
 
-					faceIndices[i] = vId->second; //** else, just calculate index and add it to face indices. 
+					faceIndices[i] = vId->second; //** vertex with certain position, texcoord and normal indices found, get the value from the map. 
 				
 				}
 
