@@ -57,17 +57,17 @@ int main()
 {
 
 	int screenWidth = 640, screenHeight = 480;
-	int canvasWidth = 640, canvasHeight = 480;
+	int canvasWidth = 512, canvasHeight = 384;
 
 	std::fstream settings;
 	settings.open("settings.ini", std::ios::in);
 	if(!settings.is_open()) {
 		settings.open("settings.ini", std::ios::out);
 		settings << "Modify these values at your own risk." << std::endl;
-		settings << "ScreenWidth=" << screenWidth << std::endl;
-		settings << "ScreenHeight=" << screenHeight << std::endl;
-		settings << "CanvasWidth=" << canvasWidth << std::endl;
-		settings << "CanvasHeight=" << canvasHeight << std::endl;
+		settings << "ScreenWidth = " << screenWidth << std::endl;
+		settings << "ScreenHeight = " << screenHeight << std::endl;
+		settings << "CanvasWidth = " << canvasWidth << std::endl;
+		settings << "CanvasHeight = " << canvasHeight << std::endl;
 		settings.close();
 	} else {
 		std::string line;
@@ -184,7 +184,7 @@ int main()
 	float suzanneAngle = 0.f;
 
 	rc.setSamplingMode(Texture::Sampling::CubicHermite);
-	rc.setTextureWrapingMode(Texture::Wraping::Clamp);
+	rc.setTextureWrapingMode(Texture::Wraping::Repeat);
 
 	rc.enableLighting(true);
 	rc.setAmbientColor({0.2f, 0.1f, 0.6f});
@@ -230,8 +230,9 @@ int main()
 
 			cameraPitch += mx * deltaTime;
 			cameraYaw += my * deltaTime;
-			
+
 			SetCursorPos(centerX, centerY);
+			inputs.ignoreMouseMoveEvents(window);
 		}
 
 
@@ -240,6 +241,14 @@ int main()
 		vec3 dir = rotation.transposed() * vec3(0.f, 0.f, 1.f);
 		vec3 right = cross(dir, vec3(0.f, 1.f, 0.f));
 		right = reorthogonalize(right, dir);
+
+		if(inputs.isKeyHit('C')) rc.setTextureWrapingMode(Texture::Wraping::Clamp);
+		if(inputs.isKeyHit('R')) rc.setTextureWrapingMode(Texture::Wraping::Repeat);
+
+
+		if(inputs.isKeyHit(0x31)) rc.setSamplingMode(Texture::Sampling::None);
+		if(inputs.isKeyHit(0x32)) rc.setSamplingMode(Texture::Sampling::Linear);
+		if(inputs.isKeyHit(0x33)) rc.setSamplingMode(Texture::Sampling::CubicHermite);
 
 		if(inputs.isKeyDown('W')) cameraPosition += dir*5.f * deltaTime;
 		if(inputs.isKeyDown('S')) cameraPosition -= dir*5.f * deltaTime;
