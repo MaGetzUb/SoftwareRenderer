@@ -106,7 +106,7 @@ class Texture {
 
 		inline vec4 sample(float x, float y, float mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const {
 		
-			float current = floor(mipLevel);
+			float current = FastFloor(mipLevel);
 			float next = std::min(current + 1.f, (float)mMipLevels);
 			float frac = mipLevel - current;
 			return sample(x, y, (int)current, sampling, wraping) * (1.f - frac) +
