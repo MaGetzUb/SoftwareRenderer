@@ -171,34 +171,34 @@ void RenderContext::drawScanLineTextured(const Gradients& gradients, Edge* a, Ed
 	float zDivisor = a->zDivisor() + gradients.zDivisorXStep() * offset;
 
 	vec4 color = a->color() + gradients.colorXStep() * offset;
-	//vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
 	vec3 normal = a->normal() + gradients.normalXStep() * offset;
-
-
-	float xDist = b->x() - a->x();
-	vec2 texCoordStep = (b->texCoord() - a->texCoord()) / xDist;
-	vec2 texCoord = a->texCoord() + texCoordStep * offset;
+	vec2 texCoord = a->texCoord() + gradients.texCoordXStep() * offset;
 
 	vec3 sunPos = vec3(mSunPosition).normalized();
+
 	float mipLevels = (float)mTexture->mipLevels()-1.f;
 
+
 	for(int x = xMin; x < xMax; x++) {
-		//mCanvas->set(x, y, color);
+
 
 		if((x & 1) ^ (y & 1) ^ (mCheckerBoard&1)) {
+
 			float z = 1.0f / zDivisor;
 			float& db = mDepthBuffer[x + y * mWidth];
+
 			if(depth < db) {
 				vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
 				float zd = (1.0f - (depth / z));
 				float mipLevel = (std::min(1.f, std::max(0.f, zd*zd*zd)) * mipLevels);
-				mCanvas->set(x, y, mTexture->sample(texCoord * z, mipLevel, mSamplingMode, mWrapingMode) * (color * z) * sun);
+				zd = Clamp(zd*zd*zd, 0.f, 1.f);
+				mCanvas->set(x, y, (mTexture->sample(texCoord * z, mipLevel, mSamplingMode, mWrapingMode) * (color * z) * sun)*(1.0f - zd) + mAmbientColor*mAmbientIntensity*zd);
 				db = depth;
 			}
 		}
 
 		color += gradients.colorXStep();
-		texCoord += texCoordStep;
+		texCoord += gradients.texCoordXStep();
 		zDivisor += gradients.zDivisorXStep();
 		depth += gradients.depthXStep();
 		normal += gradients.normalXStep();
@@ -227,7 +227,9 @@ void RenderContext::drawScanLine(const Gradients& gradients, Edge* a, Edge* b, i
 			float& db = mDepthBuffer[x + y * mWidth];
 			if(depth < db) {
 				vec4 sun = mEnableLighting ? mix(mAmbientColor, mSunColor, std::min(1.f, std::max(mAmbientIntensity, dot(normal*z, sunPos)*mSunIntensity))) : 1.f;
-				mCanvas->set(x, y, (color * z) * sun);
+				float zd = (1.0f - (depth / z));
+				zd = Clamp(zd*zd*zd, 0.f, 1.f);
+				mCanvas->set(x, y, (((color * z) * sun) * (color * z) * sun)*(1.0f - zd) + mAmbientColor * mAmbientIntensity*zd);
 				db = depth;
 			}
 		}
