@@ -70,6 +70,7 @@ class InputManager { //An input manager
 		
 		bool isTextInput(unsigned int& c) const; 
 		
+		void ignoreMouseMoveEvents(Window& window);
 		
 		LRESULT process(Window& window, UINT msg, WPARAM wparam, LPARAM lparam);
 };

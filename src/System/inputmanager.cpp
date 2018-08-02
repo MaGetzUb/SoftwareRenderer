@@ -49,6 +49,7 @@ InputManager::~InputManager() {}
 void InputManager::update() {
 	mTextInput = false;
 	mInputChar = 0;
+	mMouseMoveX = mMouseMoveY = mMouseMoveZ = 0;
 	for(unsigned int i = 0; i < 256; i++)
 		mKeyStates[i] &= 0x1; 
 	for(unsigned int i = 0; i < 5; i++)
@@ -105,6 +106,11 @@ int InputManager::mouseMoveZ() const {
 bool InputManager::isTextInput(unsigned int& c) const {
 	c = mInputChar; 
 	return mTextInput; 
+}
+
+void InputManager::ignoreMouseMoveEvents(Window& window) {
+	MSG msg;
+	for(;PeekMessage(&msg, window.handle(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE););
 }
 
 LRESULT InputManager::process(Window& window, UINT msg, WPARAM wparam, LPARAM lparam) {
