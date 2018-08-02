@@ -24,6 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "mesh.hpp"
+#include <map>
 
 //My crappy .obj file loader -MaGetzUb
 bool Mesh::load(const std::string & path) {
@@ -36,6 +37,8 @@ bool Mesh::load(const std::string & path) {
 	std::vector<vec3> positions; //Collect all the vertex positions 
 	std::vector<vec2> texCoords; //and text coords first, before storing into member variables. 
 	std::vector<vec3> normals; //Same with the normals
+
+	std::map<std::tuple<unsigned, unsigned, unsigned>, unsigned> vertices;
 
 	float x, y, z;
 	while(std::getline(file, line)) {
@@ -99,17 +102,9 @@ bool Mesh::load(const std::string & path) {
 			//A side note; this process can be probably be optimized with hashmap.
 			for(int i = 0; i < vertsPerFace+1; i++) {
 
-				auto vId = std::find_if(mVertices.begin(), mVertices.end(),
-					[&](const Vertex& v) -> bool { //Lambda for finding certain vertex, if it doesn't found *
+				auto vId = vertices.find({ vids[i], vtids[i], vnids[i] });
 
-						return v.position().xyz() == positions[vids[i]] &&
-							(!texCoords.empty() ? v.texCoord() == texCoords[vtids[i]] : true) &&
-							(!normals.empty() ? v.normal() == normals[vnids[i]] : true);
-
-					}
-				);
-
-				if(vId == mVertices.end()) {
+				if(vId == vertices.end()) {
 
 					vec4 pos = vec4(positions[vids[i]]);
 					faceIndices[i] = mVertices.size();
@@ -117,9 +112,11 @@ bool Mesh::load(const std::string & path) {
 					if(texCoords.size()) mVertices.back().setTexCoord(texCoords[vtids[i]]);
 					if(normals.size()) mVertices.back().setNormal(normals[vnids[i]]);
 
+					vertices[{vids[i], vtids[i], vnids[i]}] = faceIndices[i];
+
 				} else {
 
-					faceIndices[i] = vId - mVertices.begin(); //** else, just calculate index and add it to face indices. 
+					faceIndices[i] = vId->second; //** else, just calculate index and add it to face indices. 
 				
 				}
 
