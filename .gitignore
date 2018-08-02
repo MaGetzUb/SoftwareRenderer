@@ -8,3 +8,6 @@ premake/premake5.exe
 *.user 
 *.xcf
 settings.ini
+
+*.exe
+*.zip
