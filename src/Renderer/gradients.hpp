@@ -37,15 +37,15 @@ class Gradients {
 	float mDepth[3], mDepthXStep, mDepthYStep;
 	vec3 mNormal[3], mNormalXStep, mNormalYStep;
 
-		template <class T>
-		static inline T CalculateStepX(T(&values)[3], float acy, float bcy, float oneOverDX) {
-			return ((values[1] - values[2]) * acy - (values[0] - values[2]) * bcy) * oneOverDX;
-		}
+	template <class T>
+	static inline T CalculateStepX(T(&values)[3], float cay, float bcy, float oneOverDX) {
+		return ((values[1] - values[2]) * cay - (values[0] - values[2]) * bcy) * oneOverDX;
+	}
 
-		template <class T>
-		static inline T CalculateStepY(T(&values)[3], float acx, float bcx, float oneOverDY) {
-			return ((values[1] - values[2]) * acx - (values[0] - values[2]) * bcx) * oneOverDY;
-		}
+	template <class T>
+	static inline T CalculateStepY(T(&values)[3], float acx, float bcx, float oneOverDY) {
+		return ((values[1] - values[2]) * acx - (values[0] - values[2]) * bcx) * oneOverDY;
+	}
 
 	public:
 
@@ -79,29 +79,29 @@ class Gradients {
 			mNormal[1] = b.normal() * oneOverW[1];
 			mNormal[2] = c.normal() * oneOverW[2];
 
-			float oneOverDX = 1.0f / (((b.x() - c.x()) * (a.y() - c.y())) - ((a.x() - c.x()) * (b.y() - c.y())));
+			float cax = a.x() - c.x();
+			float cay = a.y() - c.y();
+
+			float cbx = b.x() - c.x();
+			float cby = b.y() - c.y();
+
+			float oneOverDX = 1.0f / (cbx * cay - cax * cby);
 			float oneOverDY = -oneOverDX;
 
-			float acy = a.y() - c.y();
-			float bcy = b.y() - c.y();
+			mColorXStep = CalculateStepX(mColors, cay, cby, oneOverDX);
+			mColorYStep = CalculateStepY(mColors, cax, cbx, oneOverDY);
 
-			float acx = a.x() - c.x();
-			float bcx = b.x() - c.x();
-
-			mColorXStep = CalculateStepX(mColors, acy, bcy, oneOverDX);
-			mColorYStep = CalculateStepY(mColors, acx, bcx, oneOverDY);
-
-			mTexCoordXStep = CalculateStepX(mTexCoord, acy, bcy, oneOverDX);
-			mTexCoordYStep = CalculateStepY(mTexCoord, acx, bcx, oneOverDY);
+			mTexCoordXStep = CalculateStepX(mTexCoord, cay, cby, oneOverDX);
+			mTexCoordYStep = CalculateStepY(mTexCoord, cax, cbx, oneOverDY);
 		
-			mZDivisorXStep = CalculateStepX(mZDivisor, acy, bcy, oneOverDX);
-			mZDivisorYStep = CalculateStepY(mZDivisor, acx, bcx, oneOverDY);
+			mZDivisorXStep = CalculateStepX(mZDivisor, cay, cby, oneOverDX);
+			mZDivisorYStep = CalculateStepY(mZDivisor, cax, cbx, oneOverDY);
 
-			mDepthXStep = CalculateStepX(mDepth, acy, bcy, oneOverDX);
-			mDepthYStep = CalculateStepY(mDepth, acx, bcx, oneOverDY);
+			mDepthXStep = CalculateStepX(mDepth, cay, cby, oneOverDX);
+			mDepthYStep = CalculateStepY(mDepth, cax, cbx, oneOverDY);
 		
-			mNormalXStep = CalculateStepX(mNormal, acy, bcy, oneOverDX);
-			mNormalYStep = CalculateStepY(mNormal, acx, bcx, oneOverDY);
+			mNormalXStep = CalculateStepX(mNormal, cay, cby, oneOverDX);
+			mNormalYStep = CalculateStepY(mNormal, cax, cbx, oneOverDY);
 		}
 
 		
