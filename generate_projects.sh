@@ -9,7 +9,7 @@ if [ $# -gt 0 ]; then
     args=$@
 else
     os=$(uname -s)
-    if [ "$os" == "Linux" ]; then
+    if [ "$os" == "Linux" || "${os:0:6}" == "CYGWIN" ]; then
         args="gmake"
     elif [ "$os" == "Darwin" ]; then
         args="xcode4"
