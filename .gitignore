@@ -1,4 +1,5 @@
 .vs/
+.vscode/
 
 SoftwareRenderer/
 premake/premake5.exe
@@ -8,6 +9,8 @@ premake/premake5.exe
 *.user 
 *.xcf
 settings.ini
+
+Makefile
 
 *.exe
 *.zip

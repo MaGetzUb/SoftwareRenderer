@@ -3,7 +3,7 @@ if [ ! -f "premake/premake5" ]; then
     echo "Premake cannot be found, please run 'init' to acquire it."
     read -p "Press enter to continue"
     exit 
-fi 
+fi
 
 if [ $# -gt 0 ]; then 
     args=$@
