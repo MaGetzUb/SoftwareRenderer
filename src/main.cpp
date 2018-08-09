@@ -313,7 +313,7 @@ int main()
 		#endif 
 		
 		auto tp = Timer();
-		deltaTime = (double)(tp - prevtime) / 1000.0;
+		deltaTime = (double)(tp - prevtime) / (double)TIMER_PRECISION;
 
 
 		//Cap the FPS, so movement won't become too slow. 
@@ -331,7 +331,7 @@ int main()
 			fpsTime = 0;
 		}
 
-		//window.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
+		window.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
 
 
 		inputs.update();
