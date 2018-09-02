@@ -229,8 +229,6 @@ int main()
 			float mx = (p.x - inputs.mouseX());
 			float my = (p.y - inputs.mouseY());
 
-			window.setTitle("Coords: "+std::to_string(mx)+", "+std::to_string(my));
-
 			cameraPitch += mx * deltaTime;
 			cameraYaw += my * deltaTime;
 
