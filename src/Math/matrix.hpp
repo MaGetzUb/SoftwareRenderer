@@ -291,8 +291,8 @@ static tmat<T, N, M> operator-(const tmat<T, N, M>& mat) {
 
 template <class T, int N, int M>
 void FillMatrix(tmat<T, N, M>& mat, T* data) {
-	for(int n = 0; n < M; y++)
-		for(int m = 0; m < N; x++)
+	for(int y = 0; n < M; y++)
+		for(int x = 0; m < N; x++)
 			mat[n][m] = *(data+n*N+m);
 }
 
