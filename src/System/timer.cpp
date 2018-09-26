@@ -24,20 +24,54 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <windows.h>
-#include "timer.hpp"
 
-unsigned long long  Timer() {
+#include "timer.hpp"
+#include <cassert>
+
+#if _WIN32
+#include <windows.h>
+double Timer() {
 	static struct Performance {
-		long long frequency;
+		double frequency;
 		Performance() {
 			LARGE_INTEGER freq;
 			QueryPerformanceFrequency(&freq);
-			frequency = freq.QuadPart / TIMER_PRECISION;
+			frequency = (double)freq.QuadPart / TIMER_PRECISION;
 		}
 	} performance;
 	LARGE_INTEGER current;
 	QueryPerformanceCounter(&current);
-	return current.QuadPart / performance.frequency;
+	return (double)current.QuadPart / performance.frequency;
 }
+#endif 
+
+#ifdef __linux__
+#include <sys/time.h>
+#include <cstdio>
+
+double Timer() {
+
+		constexpr double s = TIMER_PRECISION_MICROSECOND / TIMER_PRECISION;
+
+		static struct Start {
+			double time;
+			Start() {
+
+				timeval timePoint;
+				gettimeofday(&timePoint, NULL);
+				time = (double)timePoint.tv_sec * TIMER_PRECISION_MICROSECOND + (double)timePoint.tv_usec;
+			}
+		} start;
+		
+		timeval tval;
+		gettimeofday(&tval, NULL);
+
+		double now = tval.tv_sec * TIMER_PRECISION_MICROSECOND + tval.tv_usec;
+
+
+		return (now - start.time) / s;
+
+
+}
+#endif 
 

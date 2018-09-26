@@ -26,7 +26,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef INPUTMANAGER_HPP
 #define INPUTMANAGER_HPP
-#include "window.hpp"
+#include "frame.hpp"
+#include "event.hpp"
 
 class InputManager { //An input manager
 	
@@ -70,9 +71,13 @@ class InputManager { //An input manager
 		
 		bool isTextInput(unsigned int& c) const; 
 		
-		void ignoreMouseMoveEvents(Window& window);
-		
-		LRESULT process(Window& window, UINT msg, WPARAM wparam, LPARAM lparam);
+		#ifdef _WIN32
+		LRESULT process(Frame& window, UINT msg, WPARAM wparam, LPARAM lparam);
+		#endif
+		#ifdef __linux__
+		void process(Frame& frame, const XEvent& event);
+		#endif 
+
 };
 
 #endif //INPUTMANAGER_HPP

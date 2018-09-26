@@ -24,35 +24,71 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WINDOW_HPP 
-#define WINDOW_HPP
+#ifndef FRAME_HPP 
+#define FRAME_HPP
 
+#ifdef _WIN32
 #include <windows.h>
 #include <windowsx.h>
+#elif defined(__linux__) 
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#endif 
+
 #include <string>
 #include <functional>
 
-class Window;
-using MessageHandler = std::function<LRESULT(Window&, UINT, WPARAM, LPARAM)>;
+class Frame;
+#ifdef _WIN32
+using MessageHandler = std::function<LRESULT(Frame&, UINT, WPARAM, LPARAM)>;
+#elif defined(__linux__)
+using MessageHandler = std::function<void(Frame& frame, const XEvent& event)>;
 
-class Window {
+struct FrameInfo {
+	Display* display;
+	Window window;
+};
+
+#endif 
+
+
+
+class Frame {
 	
+
+#ifdef _WIN32
 	friend struct WindowClass; 
 
-	HWND mWindowHandle;
-	HDC mDeviceContext; 
+	HWND mWindowHandle = nullptr;
+	HDC mDeviceContext = nullptr; 
+	
+	RAWINPUTDEVICE mMouse;
+	RAWINPUTDEVICE mKeyboard;
+	bool mRawInput;
+#elif defined(__linux__)
+	GLXContext mDeviceContext;
+	Display* mDisplay = nullptr;
+	Window mWindow;
+	Window mRootWindow;
+	XVisualInfo* mVisualInfo = nullptr;
+	Colormap mColorMap;
+	XSetWindowAttributes mWindowAttributes;
+#endif 
 
-	unsigned mWidth, mHeight;
+	unsigned mWidth = 0, mHeight = 0;
 
 	MessageHandler mMessageCallback;
 
-	bool mCloseRequested;
+	bool mCloseRequested = false;
+	bool mOpenGLConfiguration = false;
 
 	public:
 
-		Window();
-		Window(unsigned width, unsigned height, const std::string& title = "A window");
-		~Window(); 
+		Frame() = default;
+		Frame(const Frame&) = delete;
+		Frame(unsigned width, unsigned height, const std::string& title = "A window");
+		~Frame(); 
 
 		bool initialize(unsigned width, unsigned height, const std::string& title = "A window");
 		bool deinitialize();
@@ -62,24 +98,53 @@ class Window {
 		unsigned width() const { return mWidth; }
 		unsigned height() const { return mHeight;  }
 
+		void useRawInput();
+
+		bool isRawInput() const { 
+			#ifdef _WIN32
+			return mRawInput; 
+			#else 
+			return false;
+			#endif 
+		}
+
 		bool isClosed() const { return mCloseRequested; }
 
-		HWND handle() { return mWindowHandle; }
-		HDC dc() { return mDeviceContext; }
 
-		void setMessageCallback(MessageHandler handler) { mMessageCallback = std::move(handler); }
+		void setUpOpenGL();
+
+		inline void setMessageCallback(MessageHandler&& handler) { mMessageCallback = std::move(handler); }
+
+		inline void setMessageCallback(const MessageHandler& handler) { mMessageCallback = handler; }
 
 		void pollEvents();
 
-		LRESULT defaultWindowProc(UINT msg, WPARAM wparam, LPARAM lparam);
+		void present();
 
+#ifdef _WIN32
+
+		HWND handle() { return mWindowHandle; }
+
+		HDC dc() { return mDeviceContext; }
+
+		LRESULT defaultWindowProc(UINT msg, WPARAM wparam, LPARAM lparam);
+#elif defined(__linux__)
+		FrameInfo frameInfo() {
+			return FrameInfo{mDisplay, mWindow};
+		}
+#endif
+	
 	private:
 
+#ifdef _WIN32
 		static LRESULT CALLBACK MessageCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam); 
+#elif defined(__linux__)
+
+#endif
 
 		
 
 };
 
 
-#endif //WINDOW_HPP
+#endif //FRAME_HPP
