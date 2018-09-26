@@ -198,68 +198,68 @@ void tmat4<T>::transform(const tvec2<T>& vec) {
 }
 
 template <class T>
-inline static tvec2<T> normalize(const tvec2<T>& v) {
+inline tvec2<T> normalize(const tvec2<T>& v) {
 	return v.normalized();
 }
 
 template <class T>
-inline static tvec2<T> reorthogonalize(const tvec2<T>& a, const tvec2<T>& b) {
+inline tvec2<T> reorthogonalize(const tvec2<T>& a, const tvec2<T>& b) {
 	return normalize(a - dot(a, b) * b);
 }
 
 
 template <class T>
-inline static T length(const tvec2<T>& v) {
+inline T length(const tvec2<T>& v) {
 	return v.length();
 }
 
 template<class T>
-inline static T operator*(const tvec2<T>& a, const tvec2<T>& b) {
+inline T operator*(const tvec2<T>& a, const tvec2<T>& b) {
 	return a.x*b.x + a.y*b.y;
 }
 
 template<class T>
-inline static tvec2<T> operator-(const tvec2<T>& vec) {
+inline tvec2<T> operator-(const tvec2<T>& vec) {
 	return vec2(-vec.x, -vec.y);
 }
 
 template<class T>
-inline static bool operator==(const tvec2<T>& a, const tvec2<T>& b) {
+inline bool operator==(const tvec2<T>& a, const tvec2<T>& b) {
 	return (a.x == b.x && a.y == b.y);
 }
 
 template<class T>
-inline static bool operator!=(const tvec2<T>& a, const tvec2<T>& b) {
+inline bool operator!=(const tvec2<T>& a, const tvec2<T>& b) {
 	return !(a == b);
 }
 
 template<class T>
-inline static tvec2<T> operator+(const tvec2<T>& a, const tvec2<T>& b) {
+inline tvec2<T> operator+(const tvec2<T>& a, const tvec2<T>& b) {
 	return tvec2<T>(a.x + b.x, a.y + b.y);
 }
 
 template<class T>
-inline static tvec2<T> operator-(const tvec2<T>& a, const tvec2<T>& b) {
+inline tvec2<T> operator-(const tvec2<T>& a, const tvec2<T>& b) {
 	return tvec2<T>(a.x - b.x, a.y - b.y);
 }
 
 template<class T>
-inline static tvec2<T> operator/(const tvec2<T>& a, T b) {
+inline tvec2<T> operator/(const tvec2<T>& a, T b) {
 	return tvec2<T>(a.x / b, a.y / b);
 }
 
 template<class T>
-inline static tvec2<T> operator*(const tvec2<T>& a, T b) {
+inline tvec2<T> operator*(const tvec2<T>& a, T b) {
 	return tvec2<T>(a.x * b, a.y * b);
 }
 
 template<class T>
-inline static tvec2<T> operator*(T a, const tvec2<T>& b) {
+inline tvec2<T> operator*(T a, const tvec2<T>& b) {
 	return tvec2<T>(a * b.x, a * b.y);
 }
 
 template<class T>
-inline static std::ostream& operator<<(std::ostream& o, const tvec2<T>& b) {
+inline std::ostream& operator<<(std::ostream& o, const tvec2<T>& b) {
 	o << "x: "<<b.x<<" y: "<<b.y ;
 	return o;
 }

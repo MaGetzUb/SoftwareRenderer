@@ -384,6 +384,7 @@ typedef tvec3<unsigned> uvec3;
 //__m128 row3 = _mm_set_ps(m.data()[8], m.data()[9], m.data()[10], m.data()[11]);
 //__m128 row4 = _mm_set_ps(m.data()[12], m.data()[13], m.data()[14], m.data()[15]);
 
+/*
 inline static vec3 operator*(const mat4& m, const vec3& vec) {
 	#if 1
 
@@ -406,6 +407,7 @@ inline static vec3 operator*(const mat4& m, const vec3& vec) {
 	#endif
 	return out;
 }
+*/
 
 inline static vec3 operator*(const vec3& vec, const mat4& m) {
 #if 1
@@ -434,7 +436,7 @@ inline static vec3 operator*(const vec3& vec, const mat4& m) {
 	__m128 ans = _mm_add_ps(_mm_add_ps(_mm_mul_ps(row1, col), _mm_mul_ps(row2, col)), _mm_add_ps(_mm_mul_ps(row3, col), _mm_mul_ps(row4, col)));
 
 	#endif 
-	vec3 out{ans.m128_f32[3], ans.m128_f32[2], ans.m128_f32[1]};
+	vec3 out{((float*)&ans)[3], ((float*)&ans)[2], ((float*)&ans)[1]};
 #else
 	vec3 out(vec.x*m[0][0] + vec.y*m[1][0] + vec.z*m[2][0] + m[3][0],
 		 vec.x*m[0][1] + vec.y*m[1][1] + vec.z*m[2][1] + m[3][1],
@@ -450,28 +452,28 @@ inline static vec3 operator+(const vec3& a, const vec3& b) {
 	__m128 avec = _mm_set_ps(a.x, a.y, a.z, 0.0f);
 	__m128 bvec = _mm_set_ps(b.x, b.y, b.z, 0.0f);
 	__m128 out = _mm_add_ps(avec, bvec);
-	return vec3{out.m128_f32[3], out.m128_f32[2], out.m128_f32[1]};
+	return vec3{((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1]};
 }
 
 inline static vec3 operator-(const vec3& a, const vec3& b) {
 	__m128 avec = _mm_set_ps(a.x, a.y, a.z, 0.0f);
 	__m128 bvec = _mm_set_ps(b.x, b.y, b.z, 0.0f);
 	__m128 out = _mm_sub_ps(avec, bvec);
-	return vec3{out.m128_f32[3], out.m128_f32[2], out.m128_f32[1]};
+	return vec3{((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1]};
 }
 
 inline static vec3 operator/(const vec3& a, float b) {
 	__m128 avec = _mm_set_ps(a.x, a.y, a.z, 0.0f);
 	__m128 bvec = _mm_set_ps(b, b, b, 0.0f);
 	__m128 out = _mm_div_ps(avec, bvec);
-	return vec3{out.m128_f32[3], out.m128_f32[2], out.m128_f32[1]};
+	return vec3{((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1]};
 }
 
 inline static vec3 operator*(const vec3& a, float b) {
 	__m128 avec = _mm_set_ps(a.x, a.y, a.z, 0.0f);
 	__m128 bvec = _mm_set_ps(b, b, b, 0.0f);
 	__m128 out = _mm_mul_ps(avec, bvec);
-	return vec3{out.m128_f32[3], out.m128_f32[2], out.m128_f32[1]};
+	return vec3{((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1]};
 }
 
 //Does the hadamard product
@@ -479,7 +481,7 @@ inline static vec3 operator*(const vec3& a, const vec3& b) {
 	__m128 avec = _mm_set_ps(a.x, a.y, a.z, 0.0f);
 	__m128 bvec = _mm_set_ps(b.x, b.y, b.z, 0.0f);
 	__m128 out = _mm_mul_ps(avec, bvec);
-	return vec3{out.m128_f32[3], out.m128_f32[2], out.m128_f32[1]};
+	return vec3{((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1]};
 }
 
 
@@ -487,7 +489,7 @@ inline static vec3 operator*(float a, const vec3& b) {
 	__m128 avec = _mm_set_ps(a, a, a, 0.0f);
 	__m128 bvec = _mm_set_ps(b.x, b.y, b.z, 0.0f);
 	__m128 out = _mm_mul_ps(avec, bvec);
-	return vec3{out.m128_f32[3], out.m128_f32[2], out.m128_f32[1]};
+	return vec3{((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1]};
 }
 #endif
 

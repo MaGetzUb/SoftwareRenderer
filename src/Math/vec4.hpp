@@ -284,59 +284,78 @@ typedef tvec4<unsigned int> uvec4;
 
 
 inline static vec4 operator*(const mat4& m, const vec4& vec) {
+
 	__m128 x = _mm_set1_ps(vec.x);
 	__m128 y = _mm_set1_ps(vec.y);
 	__m128 z = _mm_set1_ps(vec.z);
 	__m128 w = _mm_set1_ps(vec.w);
+
 
 	__m128 col1 = _mm_set_ps(m[0][0], m[0][1], m[0][2], m[0][3]);
 	__m128 col2 = _mm_set_ps(m[1][0], m[1][1], m[1][2], m[1][3]);
 	__m128 col3 = _mm_set_ps(m[2][0], m[2][1], m[2][2], m[2][3]);
 	__m128 col4 = _mm_set_ps(m[3][0], m[3][1], m[3][2], m[3][3]);
 	__m128 out = _mm_add_ps(_mm_add_ps(_mm_mul_ps(x, col1), _mm_mul_ps(y, col2)), _mm_add_ps(_mm_mul_ps(z, col3), _mm_mul_ps(w, col4)));
-	return vec4{ out.m128_f32[3], out.m128_f32[2], out.m128_f32[1], out.m128_f32[0] };
+	return vec4{ ((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1], ((float*)&out)[0] };
 }
+
+inline static vec4 operator*(const vec4& vec, const mat4& m) {
+	
+	__m128 x = _mm_set1_ps(vec.x);
+	__m128 y = _mm_set1_ps(vec.y);
+	__m128 z = _mm_set1_ps(vec.z);
+	__m128 w = _mm_set1_ps(vec.w);
+
+	__m128 col1 = _mm_set_ps(m[0][0], m[1][0], m[2][0], m[3][0]);
+	__m128 col2 = _mm_set_ps(m[0][1], m[1][1], m[2][1], m[3][1]);
+	__m128 col3 = _mm_set_ps(m[0][2], m[1][2], m[2][2], m[3][2]);
+	__m128 col4 = _mm_set_ps(m[0][3], m[1][3], m[2][3], m[3][3]);
+
+	__m128 out = _mm_add_ps(_mm_add_ps(_mm_mul_ps(x, col1), _mm_mul_ps(y, col2)), _mm_add_ps(_mm_mul_ps(z, col3), _mm_mul_ps(w, col4)));
+	return vec4{  ((float*)&out)[3], ((float*)&out)[2], ((float*)&out)[1], ((float*)&out)[0] };
+}
+
 
 
 inline static vec4 operator+(const vec4& a, const vec4& b) {
 	__m128 avec = _mm_loadu_ps(&a[0]);
 	__m128 bvec = _mm_loadu_ps(&b[0]);
 	__m128 out = _mm_add_ps(avec, bvec);
-	return  vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return  vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 inline static vec4 operator-(const vec4& a) {
 	__m128 avec = _mm_loadu_ps(&a[0]);
 	__m128 out = _mm_xor_ps(avec, _mm_set1_ps(-0.0));
-	return  vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return  vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 inline static vec4 operator-(const vec4& a, const vec4& b) {
 	__m128 avec = _mm_loadu_ps(&a[0]);
 	__m128 bvec = _mm_loadu_ps(&b[0]);
 	__m128 out = _mm_sub_ps(avec, bvec);
-	return  vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return  vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 inline static vec4 operator/(const vec4& a, float b) {
 	__m128 avec = _mm_loadu_ps(&a[0]);
 	__m128 bvec = _mm_set_ps(b, b, b, b);
 	__m128 out = _mm_div_ps(avec, bvec);
-	return  vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return  vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 inline static vec4 operator*(const vec4& a, float b) {
 	__m128 avec = _mm_loadu_ps(&a[0]);
 	__m128 bvec = _mm_set1_ps(b);
 	__m128 out = _mm_mul_ps(avec, bvec);
-	return  vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return  vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 inline static vec4 operator*(float a, const vec4& b) {
 	__m128 avec = _mm_set_ps(a, a, a, a);
 	__m128 bvec =_mm_loadu_ps(&b[0]);
 	__m128 out = _mm_mul_ps(avec, bvec);
-	return  vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return  vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 //Hadamard product!
@@ -344,7 +363,7 @@ inline static vec4 operator*(const vec4& a, const vec4& b) {
 	__m128 avec = _mm_loadu_ps(&a[0]);
 	__m128 bvec =_mm_loadu_ps(&b[0]);
 	__m128 out = _mm_mul_ps(avec, bvec);
-	return vec4{ out.m128_f32[0], out.m128_f32[1], out.m128_f32[2], out.m128_f32[3] };
+	return vec4{ ((float*)&out)[0], ((float*)&out)[1], ((float*)&out)[2], ((float*)&out)[3] };
 }
 
 
@@ -360,7 +379,12 @@ inline int Vec4ToPixel(const vec4& color) {
 }
 
 inline vec4 PixelToVec4(int pixelColor) {
-	__m128i y = _mm_set_epi32(*(((unsigned char*)&pixelColor) + 3), *(((unsigned char*)&pixelColor) + 2), *(((unsigned char*)&pixelColor) + 1), *(((unsigned char*)&pixelColor)));
+	__m128i y = _mm_set_epi32(
+		*(((unsigned char*)&pixelColor) + 3), 
+		*(((unsigned char*)&pixelColor) + 2), 
+		*(((unsigned char*)&pixelColor) + 1), 
+		*(((unsigned char*)&pixelColor))
+	);
 	__m128 x = _mm_cvtepi32_ps(y);
 	x = _mm_div_ps(x, _mm_set1_ps(255.f));
 	return *(vec4*)&x;
@@ -370,17 +394,17 @@ inline vec4 PixelToVec4(int pixelColor) {
 
 inline int Vec4ToPixel(const vec4& color) {
 	int out;
-	byte* ptr = (byte*)&out;
-	*out++ = (byte)(color.r * 255.f);
-	*out++ = (byte)(color.g * 255.f);
-	*out++ = (byte)(color.b * 255.f);
-	*out++ = (byte)(color.a * 255.f);
+	unsigned char* ptr = (unsigned char*)&out;
+	*(ptr++) = (unsigned char)(color.r * 255.f);
+	*(ptr++) = (unsigned char)(color.g * 255.f);
+	*(ptr++) = (unsigned char)(color.b * 255.f);
+	*(ptr++) = (unsigned char)(color.a * 255.f);
 	return out;
 }
 
 inline vec4 PixelToVec4(int pixel) {
 	vec4 out;
-	byte* ptr = (byte*)&pixel;
+	unsigned char* ptr = (unsigned char*)&pixel;
 	out.r = (float)(*ptr++);
 	out.g = (float)(*ptr++);
 	out.b = (float)(*ptr++);

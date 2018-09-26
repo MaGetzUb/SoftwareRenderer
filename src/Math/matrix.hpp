@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MATRIX_HPP
 
 #include <initializer_list>
+#include <ostream>
 #include <cassert>
 #include "math.hpp"
 
@@ -291,19 +292,20 @@ static tmat<T, N, M> operator-(const tmat<T, N, M>& mat) {
 
 template <class T, int N, int M>
 void FillMatrix(tmat<T, N, M>& mat, T* data) {
-	for(int n = 0; n < M; y++)
-		for(int m = 0; m < N; x++)
-			mat[n][m] = *(data+n*N+m);
+	for(int y = 0; y < N; y++)
+		for(int x = 0; x < M; x++)
+			mat[x][y] = *(data+y*N+x);
 }
 
 
 #define self (*this)
+#include "matrix3.inl"
 #include "matrix4.inl"
 #undef self
 
 
 typedef tmat4<float> mat4;
-
+typedef tmat3<float> mat3;
 
 #ifdef USE_SIMD
 
@@ -364,7 +366,7 @@ static mat4 IsolateRotationAndScale(const mat4& mat) {
 
 //Based on https://github.com/niswegmann/small-matrix-inverse/blob/master/invert4x4_sse.h
 template<>
-tmat4<float> tmat4<float>::Inverse(const mat4& mat) {
+inline mat4 tmat4<float>::Inverse(const mat4& mat) {
 	tmat4<float> out;
 	__m128 minor0, minor1, minor2, minor3;
 	__m128 row0, row1, row2, row3;
