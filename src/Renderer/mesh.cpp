@@ -35,8 +35,8 @@ bool Mesh::load(const std::string & path) {
 	std::string line;
 
 	std::vector<vec3> positions; //Collect all the vertex positions 
-	std::vector<vec2> texCoords; //and text coords first, before storing into member variables. 
-	std::vector<vec3> normals; //Same with the normals
+	std::vector<vec2> texCoords; //texcoords first, 
+	std::vector<vec3> normals; //and normals before storing them into vertex array.
 
 	std::map<std::tuple<unsigned, unsigned, unsigned>, unsigned> vertices; //Map each position index, texcoord index and normal index to unique vertex.
 
