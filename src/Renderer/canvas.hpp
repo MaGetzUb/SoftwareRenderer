@@ -58,7 +58,7 @@ class Canvas {
 	int mPitch = 0;
 
 	public:
-
+		Canvas() = default;
 
 		Canvas(Frame& window);
 		~Canvas();
