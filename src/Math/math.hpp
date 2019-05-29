@@ -37,15 +37,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 constexpr double Pi = 3.1415926535897932384626433832795;
 
+#ifdef _MSC_VER
 template <class T>
 inline T FastFloor(T v) { static_assert(false, "Not specified for this type"); }
 
 template<>
 inline float FastFloor(float v) {
 	#if 1
-	int vf = v;
-	if(v >= 0) return vf;
-	return vf-1;
+	return v < 0 ? (int)v - 1 : (int)v;
 	#else
 	return floorf(v);
 	#endif 
@@ -56,6 +55,16 @@ inline double FastFloor(double v) {
 	if(v >= 0) return (long long)v;
 	return (long long)v - 1;
 }
+#else 
+
+inline float FastFloor(float v) {
+	return v < 0 ? (int)v - 1 : (int)v;
+}
+
+inline double FastFloor(double v) {
+	if(v >= 0) return (long long)v;
+}
+#endif 
 
 template <class T>
 inline T Fract(T v) {
