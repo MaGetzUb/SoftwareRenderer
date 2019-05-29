@@ -76,9 +76,9 @@ struct tquat {
 	}
 
 	tquat& rotate(const tvec3<T>& n1, const tvec3<T>& n2) {
-		tvec3<T> n1 = n1.normalized();
-		tvec3<T> n2 = n2.normalized();
-		*this *= {cross(n1, n2), dot(n1, n2)};
+		tvec3<T> a = n1.normalized();
+		tvec3<T> b = n2.normalized();
+		*this *= {cross(a, b), dot(a, b)};
 		return *this;
 	}
 
@@ -183,13 +183,13 @@ struct tquat {
 	}
 
 	inline T angle() const {
-		return ACos(w) * CastS(T, 2);
+		return ACos(w) * (T)2;
 	}
 
 	inline tvec3<T> axis() const {
-		T tmp1 = CastS(T, 1) - w * w;
-		if(tmp1 <= CastS(T, 0)) return tvec3<T>(0, 0, 1);
-		T tmp2 = CastS(T, 1) / sqrt(tmp1);
+		T tmp1 = (T)1 - w * w;
+		if(tmp1 <= (T)0) return tvec3<T>(0, 0, 1);
+		T tmp2 = (T)1 / sqrt(tmp1);
 		return tvec3<T>(x * tmp2, y * tmp2, z * tmp2);
 	}
 

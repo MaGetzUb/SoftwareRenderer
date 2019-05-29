@@ -370,8 +370,10 @@ inline static vec4 operator*(const vec4& a, const vec4& b) {
 inline int Vec4ToPixel(const vec4& color) {
 	__m128 x = _mm_loadu_ps(&color[0]);
 	x = _mm_mul_ps(x, _mm_set1_ps(255.f));
-	constexpr unsigned shuff = _MM_SHUFFLE(3, 0, 1, 2);
-	x = _mm_shuffle_ps(x, x, shuff);
+
+	constexpr int shuff = _MM_SHUFFLE(3, 0, 1, 2);
+
+	x = _mm_shuffle_ps(x, x, (unsigned char)shuff);
 	__m128i y = _mm_cvtps_epi32(x);
 	y = _mm_packs_epi32(y, y);
 	y = _mm_packus_epi16(y, y);
