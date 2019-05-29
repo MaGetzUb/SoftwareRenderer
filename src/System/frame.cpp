@@ -26,6 +26,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _WIN32
 #include <windows.h>
 #include <windowsx.h>
+#ifdef FRAME_SUPPORT_OPENGL
+#include <gl/GL.h>
+#pragma comment(lib, "opengl32.lib")
+#endif 
 #elif defined(__linux__)
 #include <GL/glx.h>
 #include <GL/glxext.h>
@@ -147,11 +151,13 @@ bool Frame::initialize(unsigned width, unsigned height, const std::string& title
 }
 
 bool Frame::deinitialize() {
+#ifdef FRAME_SUPPORT_OPENGL
 	if(wglGetCurrentDC() == mDeviceContext) {
 		HGLRC rc = wglGetCurrentContext();
 		wglMakeCurrent(mDeviceContext, 0);
 		wglDeleteContext(rc);
 	}
+#endif 
 	ReleaseDC(mWindowHandle, mDeviceContext);
 	DestroyWindow(mWindowHandle);
 	return true;
@@ -183,7 +189,7 @@ void Frame::useRawInput() {
 	mRawInput = true;
 }
 
-
+#ifdef FRAME_SUPPORT_OPENGL
 void Frame::setUpOpenGL() {
 
 	mOpenGLConfiguration = true; //Ensures DeviceContext is not regained after resize.
@@ -210,6 +216,7 @@ void Frame::setUpOpenGL() {
 	}
 
 }
+#endif 
 
 void Frame::pollEvents() {
 	MSG msg;
@@ -256,9 +263,12 @@ LRESULT CALLBACK Frame::MessageCallback(HWND windowHandle, UINT msg, WPARAM wpar
 	return DefWindowProc(windowHandle, msg, wparam, lparam);
 }
 
+
+#ifdef FRAME_SUPPORT_OPENGL
 void Frame::present() {
 	if(mDeviceContext) SwapBuffers(mDeviceContext);
 }
+#endif 
 
 #ifdef NDEBUG
 extern int main(int argc, char* argv[]);
@@ -287,6 +297,7 @@ bool Frame::initialize(unsigned width, unsigned height, const std::string& title
 
 	mWindowAttributes.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | Button1MotionMask | FocusChangeMask;
 
+	/*
 	mWindow = XCreateWindow(
 		mDisplay, 
 		mRootWindow, 
@@ -298,7 +309,25 @@ bool Frame::initialize(unsigned width, unsigned height, const std::string& title
 		CopyFromParent,
 		InputOutput,
 		CopyFromParent, 
-		CWColormap | CWEventMask, 
+		CWColormap | CWEventMask | CWBackPixmap, 
+		&mWindowAttributes
+	);
+	*/
+
+
+	//CopyFromParent, CopyFromParent,CopyFromParent, 0, 0
+	mWindow = XCreateWindow(
+		mDisplay, 
+		mRootWindow, 
+		attribs.width / 2 - width / 2, 
+		attribs.height / 2 - height / 2, 
+		width, 
+		height, 
+		0,
+		CopyFromParent, 
+		CopyFromParent,
+		CopyFromParent, 
+		CWEventMask, 
 		&mWindowAttributes
 	);
 
@@ -306,7 +335,6 @@ bool Frame::initialize(unsigned width, unsigned height, const std::string& title
 	mHeight = height;
 	XStoreName(mDisplay, mWindow, title.c_str());
 	XMapWindow(mDisplay, mWindow);
-
 
 
 	return 0;
@@ -317,15 +345,17 @@ void Frame::setTitle(const std::string& title) {
 }
 
 bool Frame::deinitialize() {
-
+	#ifdef FRAME_SUPPORT_OPENGL
 	if(mDeviceContext) {
 		glXMakeContextCurrent(mDisplay, mWindow, 0, 0);
 		glXDestroyContext(mDisplay, mDeviceContext);
 	}
+	#endif 
 	XDestroyWindow(mDisplay, mWindow);
 	XCloseDisplay(mDisplay);
+	
 }
-
+#ifdef FRAME_SUPPORT_OPENGL
 GLXFBConfig pickBestConfig(Display* display, int* attribs) {
 
 	int fbCount;
@@ -337,7 +367,7 @@ GLXFBConfig pickBestConfig(Display* display, int* attribs) {
 		abort();
 	}
 
-	assert(fbc && "Failed to retrieve a framebuffer config!");
+	assert("Failed to retrieve a framebuffer config!" && fbc);
 
 	int bestFbc = -1, worstFbc = -1, bestNumSamples = -1, worstNumSamples = 999;
 
@@ -358,11 +388,38 @@ GLXFBConfig pickBestConfig(Display* display, int* attribs) {
 }
 
 
-
-
 void Frame::setUpOpenGL() {
 
-  	
+	std::string title;
+
+	//The window must be deleted, because the CWColorMap must be there.
+	if(mWindow) {
+		XWindowAttributes attribs;
+		XGetWindowAttributes(mDisplay, mWindow, &attribs);
+
+		char* name;
+		int status = XFetchName(mDisplay, mWindow, &name);
+		if(status == Success) {
+			title = name;
+		}
+
+		XDestroyWindow(mWindow);
+		mWindow = XCreateWindow(
+			mDisplay, 
+			mRootWindow, 
+			attribs.x
+			attribs.y,
+			attribs.width,
+			attribs.height,
+			0,
+			CopyFromParent, 
+			InputOutput,
+			CopyFromParent, 
+			CWEventMask | CWColormap, 
+			&mWindowAttributes
+		);
+	}
+
 	int glxMajo, glxMino;
 	if(!glXQueryVersion(mDisplay, &glxMajo, &glxMino) || ((glxMajo == 1) && (glxMino < 3)) || (glxMajo < 1)) {
 		std::cout << "GLX version invalid!\n";
@@ -413,9 +470,12 @@ void Frame::setUpOpenGL() {
 
 	mDeviceContext = glXCreateContextAttribsARB(mDisplay, conf, NULL, True, attribs);
  	glXMakeCurrent(mDisplay, mWindow, mDeviceContext);
-
+	
+	XStoreName(mDisplay, mWindow, title.c_str());
+	XMapWindow(mDisplay, mWindow);
 
 }
+#endif 
 
 void Frame::pollEvents() {
 
@@ -428,23 +488,25 @@ void Frame::pollEvents() {
 				XGetWindowAttributes(mDisplay, mWindow, &attribs);
 				mWidth = attribs.width;
 				mHeight = attribs.height;
-				mMessageCallback(*this, event);
+				if(mMessageCallback) mMessageCallback(*this, event);
 			} break;
 			case ClientMessage:
 				mCloseRequested = true;
-				mMessageCallback(*this, event);
+				if(mMessageCallback) mMessageCallback(*this, event);
 			break;
 			default:
-				mMessageCallback(*this, event);
+				if(mMessageCallback) mMessageCallback(*this, event);
 			break;
 		}
 	}
 
 }
 
+#ifdef FRAME_SUPPORT_OPENGL
 void Frame::present() {
 	if(mDeviceContext) glXSwapBuffers(mDisplay, mWindow);
 }
+#endif 
 
 #endif 
 

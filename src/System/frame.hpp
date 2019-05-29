@@ -111,15 +111,17 @@ class Frame {
 		bool isClosed() const { return mCloseRequested; }
 
 
-		void setUpOpenGL();
-
 		inline void setMessageCallback(MessageHandler&& handler) { mMessageCallback = std::move(handler); }
 
 		inline void setMessageCallback(const MessageHandler& handler) { mMessageCallback = handler; }
 
 		void pollEvents();
 
+
+#ifdef FRAME_SUPPORT_OPENGL
+		void setUpOpenGL();
 		void present();
+#endif 
 
 #ifdef _WIN32
 
