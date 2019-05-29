@@ -118,8 +118,6 @@ void Canvas::swapBuffers() const {
 
 		if(mImage) XDestroyImage(mImage); //According the docs, this also deletes the allocated bitmap buffer.
 
-		if(mFramebufferMemory) free(mFramebufferMemory);
-
 		mFramebufferMemory = (byte*)_aligned_malloc(mFrameWidth*mFrameHeight*bytesPerPixel, 16);
 
 		FrameInfo info = mFrame->frameInfo();
