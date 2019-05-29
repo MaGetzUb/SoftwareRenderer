@@ -49,9 +49,9 @@ InputManager::InputManager():
 	mTextInput(false),
 	mInputChar(0),
 #ifdef _WIN32
-	mCallbackProcesor(std::bind(&InputManager::process, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
+	mCallbackProcesor([this](Frame& frame, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT { return process(frame, msg, wParam, lParam); })
 #elif defined(__linux__)
-	mCallbackProcesor(std::bind(&InputManager::process, this, std::placeholders::_1, std::placeholders::_2))
+	mCallbackProcesor([this](Frame& frame, const XEvent& event){process(frame, event);})
 #endif 
 {}
 
@@ -188,7 +188,7 @@ LRESULT InputManager::process(Frame& frame, UINT msg, WPARAM wparam, LPARAM lpar
 		case WM_KEYDOWN:
 		case WM_KEYUP: {
 			int key = MapKey(wparam, lparam);
-			if(((lparam >> 31) & 1) == (mKeyStates[key] & 0x1)) {
+			if(((lparam >> 31) & 1) & (mKeyStates[key] & 0x1)) {
 				mKeyStates[key] ^= 1;
 				mKeyStates[key] |= 2;
 			}
