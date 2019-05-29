@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gradients.hpp"
 #include "texture.hpp"
 #include "edge.hpp"
+#include "../System/memory.hpp"
 
 //Code based on TheBennybox' video tutorial series on software rendering
 class RenderContext {
@@ -101,7 +102,8 @@ class RenderContext {
 			mScreenSpaceTransform = mat4::ScreenSpace((float)canvas.width() * .5f, (float)canvas.height() * .5f);
 			unsigned size = mWidth * mHeight * sizeof(float);
 			size += (size % 16);
-			mDepthBuffer = (float*)_aligned_realloc(mDepthBuffer, size, 16);
+			if(mDepthBuffer) free(mDepthBuffer);
+			mDepthBuffer = (float*)_aligned_malloc(size, 16);
 		}
 
 		inline void setSamplingMode(Texture::Sampling sampling) { mSamplingMode = sampling; }
