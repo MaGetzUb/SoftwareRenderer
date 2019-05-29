@@ -27,24 +27,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CANVAS_HPP 
 #define CANVAS_HPP
 
-#include "../System/window.hpp"
+#include "../System/frame.hpp"
 #include "../Math/vec4.hpp"
+
+#ifdef __linux__
+#include <X11/Xlib.h>
+#endif 
+
 using byte = unsigned char;
 
 class Canvas {
-
+#ifdef _WIN32
 	BITMAPINFO mBufferInfo;
-	byte* mBufferMemory;
-	unsigned mBufferSize;
-	Window* mWindow;
+#elif defined(__linux__)
+	
 
-	int mWidth, mHeight;
-	int mPitch;
+	mutable byte* mFramebufferMemory = nullptr;
+	mutable XImage* mImage = nullptr;
+	mutable GC mGC;
+
+	mutable int mFrameWidth = 0;
+	mutable int mFrameHeight = 0;
+
+#endif 
+	Frame* mFrame = nullptr;
+	byte* mBufferMemory = nullptr;
+	unsigned mBufferSize = 0;
+
+	int mWidth = 0, mHeight = 0;
+	int mPitch = 0;
 
 	public:
 
 
-		Canvas(Window& window);
+		Canvas(Frame& window);
 		~Canvas();
 
 		void resize(int w, int h);
