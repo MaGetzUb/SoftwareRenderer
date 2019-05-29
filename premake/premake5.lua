@@ -73,6 +73,7 @@ _project("SoftwareRenderer")
 	filter { "system:linux" }
 		toolset("gcc")
 		cppdialect "C++17"
+		buildoptions{"-fopenmp"}
 		links {
 			"X11"
 		}
