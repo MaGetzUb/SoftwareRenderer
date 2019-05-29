@@ -69,6 +69,13 @@ _project("SoftwareRenderer")
 			"Shlwapi",
 			"gdi32",
 		}
+
+	filter { "system:linux" }
+		toolset("gcc")
+		cppdialect "C++17"
+		links {
+			"X11"
+		}
 	
 	filter {}
 
