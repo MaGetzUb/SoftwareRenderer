@@ -24,7 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "System/window.hpp"
+#include "System/frame.hpp"
 #include "Renderer/canvas.hpp"
 #include "System/inputmanager.hpp"
 #include "System/timer.hpp"
@@ -37,6 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "starfield.hpp"
 #include "Math/quat.hpp"
 
+#ifdef __linux__
+#include <unistd.h>
+#endif 
+
 
 #define NONE 0
 #define STARFIELD 1
@@ -44,16 +48,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define TEST RENDERCONTEXT
 
-#ifdef NDEBUG 
-int CALLBACK WinMain(
-	HINSTANCE /*hInstance*/,
-	HINSTANCE /*hPrevInstance*/,
-	LPSTR     /*lpCmdLine*/,
-	int       /*nCmdShow*/
-)
-#else
+
 int main()
-#endif 
 {
 
 	int screenWidth = 640, screenHeight = 480;
@@ -91,9 +87,9 @@ int main()
 	}
 
 
-	Window window;
-	window.initialize(screenWidth, screenHeight, "Software Renderer");
-	Canvas canvas(window);
+	Frame frame;
+	frame.initialize(screenWidth, screenHeight, "Software Renderer");
+	Canvas canvas(frame);
 	canvas.resize(canvasWidth, canvasHeight);
 
 	float aRatio = 4.0f / 3.0f;
@@ -102,18 +98,21 @@ int main()
 
 	InputManager inputs;
 
-	inputs.setCustomMessageCallback([&aRatio](Window& window, UINT msg, WPARAM wparam, LPARAM lparam)->LRESULT {
+	#ifdef _WIN32
+	inputs.setCustomMessageCallback([&aRatio](Frame& frame, UINT msg, WPARAM wparam, LPARAM lparam)->LRESULT {
 		switch(msg) {
-		case WM_SIZE: {
-			float w = GET_X_LPARAM(lparam);
-			float h = GET_Y_LPARAM(lparam);
-			aRatio = w / h;
-		} break;
+			case WM_SIZE: {
+				float w = GET_X_LPARAM(lparam);
+				float h = GET_Y_LPARAM(lparam);
+				aRatio = w / h;
+			} break;
 		}
-		return window.defaultWindowProc(msg, wparam, lparam);
+		return frame.defaultWindowProc(msg, wparam, lparam);
 	});
+	frame.setMessageCallback(inputs.callbackProcessor());
+	#endif 
 
-	window.setMessageCallback(inputs.callbackProcessor());
+
 
 
 	#if TEST == STARFIELD 
@@ -195,8 +194,8 @@ int main()
 
 	rc.setSunPosition(vec3(16.f, 3.f, 8.f));
 
-	while(!window.isClosed()) {
-		window.pollEvents();
+	while(!frame.isClosed()) {
+		frame.pollEvents();
 
 
 		rc.reset();
@@ -213,12 +212,13 @@ int main()
 
 		mat4 mat;
 
+		#if 0
 		if(inputs.isMouseHit(0)) ShowCursor(FALSE);
 		if(inputs.isMouseUp(0)) ShowCursor(TRUE);
 		if(inputs.isMouseDown(0)) {
 			
 			RECT rct;
-			GetClientRect(window.handle(), &rct);
+			GetClientRect(frame.handle(), &rct);
 
 			POINT p;
 			p.x = (rct.right - rct.left) / 2;
@@ -229,15 +229,15 @@ int main()
 			float mx = (p.x - inputs.mouseX());
 			float my = (p.y - inputs.mouseY());
 
-			window.setTitle("Coords: "+std::to_string(mx)+", "+std::to_string(my));
+			frame.setTitle("Coords: "+std::to_string(mx)+", "+std::to_string(my));
 
 			cameraPitch += mx * deltaTime;
 			cameraYaw += my * deltaTime;
 
-			ClientToScreen(window.handle(), &p);
+			ClientToScreen(frame.handle(), &p);
 			SetCursorPos(p.x, p.y);
 		}
-
+		#endif 
 
 		mat4 rotation = mat4::Rotation(cameraYaw, 1.0f, 0.0f, 0.0f)*mat4::Rotation(cameraPitch, 0.0f, 1.0f, 0.0f);
 
@@ -245,18 +245,18 @@ int main()
 		vec3 right = cross(dir, vec3(0.f, 1.f, 0.f));
 		right = reorthogonalize(right, dir);
 
-		if(inputs.isKeyHit('C')) rc.setTextureWrapingMode(Texture::Wraping::Clamp);
-		if(inputs.isKeyHit('R')) rc.setTextureWrapingMode(Texture::Wraping::Repeat);
+		if(inputs.isKeyHit(Key::C)) rc.setTextureWrapingMode(Texture::Wraping::Clamp);
+		if(inputs.isKeyHit(Key::R)) rc.setTextureWrapingMode(Texture::Wraping::Repeat);
 
 
-		if(inputs.isKeyHit(0x31)) rc.setSamplingMode(Texture::Sampling::None);
-		if(inputs.isKeyHit(0x32)) rc.setSamplingMode(Texture::Sampling::Linear);
-		if(inputs.isKeyHit(0x33)) rc.setSamplingMode(Texture::Sampling::CubicHermite);
+		if(inputs.isKeyHit(Key::Num1)) rc.setSamplingMode(Texture::Sampling::Nearest);
+		if(inputs.isKeyHit(Key::Num2)) rc.setSamplingMode(Texture::Sampling::Linear);
+		if(inputs.isKeyHit(Key::Num3)) rc.setSamplingMode(Texture::Sampling::CubicHermite);
 
-		if(inputs.isKeyDown('W')) cameraPosition += dir*5.f * deltaTime;
-		if(inputs.isKeyDown('S')) cameraPosition -= dir*5.f * deltaTime;
-		if(inputs.isKeyDown('D')) cameraPosition += right*5.f * deltaTime;
-		if(inputs.isKeyDown('A')) cameraPosition -= right*5.f * deltaTime;
+		if(inputs.isKeyDown(Key::W)) cameraPosition += dir*5.f * deltaTime;
+		if(inputs.isKeyDown(Key::A)) cameraPosition -= dir*5.f * deltaTime;
+		if(inputs.isKeyDown(Key::S)) cameraPosition += right*5.f * deltaTime;
+		if(inputs.isKeyDown(Key::D)) cameraPosition -= right*5.f * deltaTime;
 
 		/*
 		if(inputs.isKeyHit(VK_SPACE)) {
@@ -269,7 +269,7 @@ int main()
 
 		mat4 viewProjection = mat4::Perspective(aRatio, 90.0f, .01f, 100.f) * rotation * mat4::Translate(cameraPosition);
 
-		z -= (float)(inputs.isKeyDown(VK_UP) - inputs.isKeyDown(VK_DOWN)) * deltaTime;
+		z -= (float)(inputs.isKeyDown(Key::Up) - inputs.isKeyDown(Key::Down)) * deltaTime;
 
 		mat4 suzanneRotation = mat4::Rotation(QMod(suzanneAngle, 360.0f), 0.f, 1.f, 0.f);
 		mat4 model = mat4::Translate(0.0f, 0.0f, -2.0f)  * suzanneRotation;
@@ -318,7 +318,12 @@ int main()
 
 		//Cap the FPS, so movement won't become too slow. 
 		if(deltaTime < (1.0 / 120.0)) {
+			#ifdef _WIN32
 			Sleep((int)1000.0*(1.0 / 120.0));
+			#endif 
+			#ifdef __linux__
+				usleep((int)(1000000.0*(1.0 / 120.0)));
+			#endif 
 		}
 
 		//Calculate FPS
@@ -331,7 +336,7 @@ int main()
 			fpsTime = 0;
 		}
 
-		window.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
+		frame.setTitle("Software Rendering | FPS: " + std::to_string(fps) + " | Triangles: "+std::to_string(rc.renderedTriangles()) /*+ (rc.isMipMapTesting() ? " | MipMap testing! " + std::to_string(rc.mipMapLevel()) : "")*/);
 
 
 		inputs.update();
