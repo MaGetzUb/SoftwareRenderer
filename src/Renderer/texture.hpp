@@ -31,12 +31,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Math/vec2.hpp"
 #include <string>
 
+
 class Texture { 
 	
 	vec4* mPixels = nullptr; //Store the pixel data as floats, so there's no need for byte -> float conversion.
 	ivec2 mSize; 
-	
-	uvec2 mTextureOffset; //We need this for repeat wrap mode, because of modulo operator
 
 	ivec2 mMipLevelsPerAxis;
 	int mMipLevels;
@@ -44,7 +43,7 @@ class Texture {
 	public:
 		
 		enum class Sampling {
-			None,
+			Nearest = 0,
 			Linear,
 			CubicHermite
 		};
@@ -84,11 +83,11 @@ class Texture {
 		int height() const { return mSize.y; }
 
 		inline vec4 sample(int x, int y, Wraping wraping = Wraping::Repeat) const {
-			unsigned sx, sy;
+			int sx, sy;
 			switch(wraping) {
 				case Wraping::Repeat: {
-					sx = (mTextureOffset.x + x) % (unsigned)mSize.x;
-					sy = (mTextureOffset.y + y) % (unsigned)mSize.y;
+					sx = Fract(x / (float)mSize.x) * (float)(mSize.x-1);
+					sy = Fract(y / (float)mSize.y) * (float)(mSize.y-1);
 				} break;
 				case Wraping::Clamp:
 					sx = Clamp(x, 0, mSize.x-1);
@@ -100,11 +99,13 @@ class Texture {
 		
 		}
 
-		vec4 sample(float x, float y, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const;
+		vec4 sample(float x, float y, int mipLevel, Sampling sampling = Sampling::Nearest, Wraping wraping = Wraping::Repeat) const;
 
-		inline vec4 sample(const vec2& vec, int mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const { return sample(vec.x, vec.y, mipLevel, sampling, wraping); }
+		inline vec4 sample(const vec2& vec, int mipLevel, Sampling sampling = Sampling::Nearest, Wraping wraping = Wraping::Repeat) const { 
+			return sample(vec.x, vec.y, mipLevel, sampling, wraping); 
+		}
 
-		inline vec4 sample(float x, float y, float mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const {
+		inline vec4 sample(float x, float y, float mipLevel, Sampling sampling = Sampling::Nearest, Wraping wraping = Wraping::Repeat) const {
 		
 			float current = FastFloor(mipLevel);
 			float next = std::min(current + 1.f, (float)mMipLevels);
@@ -113,7 +114,7 @@ class Texture {
 					sample(x, y, (int)next, sampling, wraping) * frac;
 		}
 
-		inline vec4 sample(const vec2& vec, float mipLevel, Sampling sampling = Sampling::None, Wraping wraping = Wraping::Repeat) const {
+		inline vec4 sample(const vec2& vec, float mipLevel, Sampling sampling = Sampling::Nearest, Wraping wraping = Wraping::Repeat) const {
 			return sample(vec.x, vec.y, mipLevel, sampling, wraping);
 		}
 

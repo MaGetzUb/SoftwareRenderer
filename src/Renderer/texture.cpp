@@ -51,9 +51,7 @@ bool Texture::load(const std::string& path) {
 		ptr += 4;
 	}
 
-	constexpr unsigned middle = 1 << 31;
-	mTextureOffset.x = (middle / (unsigned)mSize.x) * (unsigned)mSize.x;
-	mTextureOffset.y = (middle / (unsigned)mSize.y) * (unsigned)mSize.y;
+
 
 	mMipLevelsPerAxis.x = (int)log2(mSize.x);
 	mMipLevelsPerAxis.y = (int)log2(mSize.y);
@@ -72,7 +70,7 @@ vec4 Texture::sample(float x, float y, int mipLevel, Sampling sampling, Wraping 
 	int mipY = mSize.y / ((1<<(mMipLevelsPerAxis.y)) >> mipLevel);
 
 	switch(sampling) {
-		case Sampling::None: 
+		case Sampling::Nearest: 
 			return sample(((int)x / mipX)*mipX, ((int)y / mipY)*mipY, wraping); break;
 		case Sampling::Linear: 
 		case Sampling::CubicHermite:
