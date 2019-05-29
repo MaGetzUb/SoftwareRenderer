@@ -1,5 +1,5 @@
 /*
-Copyright © 2018, Marko Ranta
+Copyright ï¿½ 2018, Marko Ranta
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ bool Mesh::load(const std::string & path) {
 			//vertices for many faces, especially
 			//when texture coordinates are utilized
 
-			int vpids[256]{}, vtids[256]{}, vnids[256]{};
+			unsigned vpids[256]{}, vtids[256]{}, vnids[256]{};
 			unsigned faceIndices[256]{};
 			char crap;
 
@@ -102,7 +102,7 @@ bool Mesh::load(const std::string & path) {
 
 			for(int i = 0; i < vertsPerFace+1; i++) {
 
-				auto vId = vertices.find({ vpids[i], vtids[i], vnids[i] }); //Find a vertex with certain position, texcoord and normal index.
+				auto vId = vertices.find(std::tuple<unsigned,unsigned,unsigned>{ vpids[i], vtids[i], vnids[i] }); //Find a vertex with certain position, texcoord and normal index.
 
 				if(vId == vertices.end()) { //If nothing found, we need to add it to the actual vertices, and into the map
 
@@ -112,7 +112,7 @@ bool Mesh::load(const std::string & path) {
 					if(texCoords.size()) mVertices.back().setTexCoord(texCoords[vtids[i]]);
 					if(normals.size()) mVertices.back().setNormal(normals[vnids[i]]);
 
-					vertices[{vpids[i], vtids[i], vnids[i]}] = faceIndices[i]; //Add the vertex index into map
+					vertices[std::tuple<unsigned,unsigned,unsigned>{vpids[i], vtids[i], vnids[i]}] = faceIndices[i]; //Add the vertex index into map
 
 				} else {
 
