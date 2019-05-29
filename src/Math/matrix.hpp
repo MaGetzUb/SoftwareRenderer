@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <initializer_list>
 #include <ostream>
 #include <cassert>
+#include <cstring>
 #include "math.hpp"
 
 template <class T>
